@@ -50,9 +50,9 @@ public class GCMIntentService extends IntentService {
                     MESSAGE_TYPE_DELETED.equals(messageType)) {
                 //sendNotification("Deleted messages on server: " + extras.toString());
                 // If it's a regular GCM message, do some work.
-            } else if (GoogleCloudMessaging.
-                    MESSAGE_TYPE_MESSAGE.equals(messageType)) {
+            } else if (GoogleCloudMessaging. MESSAGE_TYPE_MESSAGE.equals(messageType)) {
                 System.out.println("Launching notification");
+
                 // Post notification of received message.
                 sendNotification("Received: " + extras.toString());
                 System.out.println("GCMRec: " + extras.toString());

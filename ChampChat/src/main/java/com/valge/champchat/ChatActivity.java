@@ -3,11 +3,14 @@ package com.valge.champchat;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.SearchManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.SearchView;
 
+import com.valge.champchat.gcm_package.GCMBroadcastReceiver;
 import com.valge.champchat.list_view_adapter.FriendMessageListAdapter;
 import com.valge.champchat.util.DbAdapter;
 import com.valge.champchat.util.FriendMessage;
@@ -41,6 +45,14 @@ public class ChatActivity extends Activity {
     //message fragment
     ListView messageListView;
     FriendMessageListAdapter fmla;
+
+    //broadCastReceiver
+    BroadcastReceiver onPauseReceiver;
+    BroadcastReceiver onResumeReceiver;
+    BroadcastReceiver onStopReceiver;
+
+    //GCMBroadcast
+    GCMBroadcastReceiver gcmBroadcast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -202,17 +214,26 @@ public class ChatActivity extends Activity {
     protected void onResume() {
         super.onResume();
         System.out.println("This is on resume on Chat activity");
+        onResumeReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                System.out.println("Berhasil bok : " + intent.getStringExtra("message"));
+            }
+        };
+        LocalBroadcastManager.getInstance(this).registerReceiver(onResumeReceiver, new IntentFilter("messageIntent"));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         System.out.println("This is on pause on Chat activity");
+        IntentFilter filter = new IntentFilter("com.google.android.c2dm.intent.RECEIVE");
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         System.out.println("This is on stop on Chat activity");
+        IntentFilter filter = new IntentFilter("com.google.android.c2dm.intent.RECEIVE");
     }
 }

@@ -241,7 +241,6 @@ public class ApplicationActivationActivity extends Activity {
 
             protected void onPostExecute(Object result) {
                 imActivationStatus.setText("Setting receiver");
-                broadCastReceiver = new GCMBroadcastReceiver();
 
                 imActivationStatus.setText("Acitvation Success");
                 new Thread(new Runnable() {
@@ -250,7 +249,6 @@ public class ApplicationActivationActivity extends Activity {
                     public void run() {
                         // TODO Auto-generated method stub
                         try {
-                            GCMBroadcastReceiver gcmBroadcastReceiver = new GCMBroadcastReceiver();
                             //Thread.sleep(2500);
                             Intent intent = new Intent(ApplicationActivationActivity.this, ChatActivity.class);
                             startActivity(intent);

@@ -26,6 +26,7 @@
         android:theme="@style/AppTheme" >
 
         <service android:name="com.valge.champchat.gcm_package.GCMIntentService"></service>
+
         <receiver
             android:name=".gcm_package.GCMBroadcastReceiver"
             android:exported="true"
