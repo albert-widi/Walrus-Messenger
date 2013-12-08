@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_height="65dp"
+        android:layout_width="match_parent"
+        android:background="@color/grey_light"
+        android:textSize="25dp"
+        android:gravity="center_horizontal|center_vertical"
+        android:text="@string/welcome_to_app"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:text="Phone Number :"
+        android:textSize="20dp"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal|center_vertical">
+
+        <EditText
+            android:id="@+id/check_phone_code"
+            android:layout_width="55dp"
+            android:layout_height="wrap_content"
+            android:text="+62"
+            android:inputType="text" />
+
+
+        <EditText
+            android:id="@+id/check_phone_number"
+            android:hint="Ex: 813XXXXX"
+            android:layout_height="wrap_content"
+            android:layout_width="150dp"
+            android:layout_toRightOf="@+id/check_phone_code"
+
+            android:inputType="phone"/>
+
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/confirm_button"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="35dp"
+        android:gravity="center_horizontal|center_vertical"
+        android:text="Confirm"/>
+
+    <Button
+        android:id="@+id/reg_button"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="35dp"
+        android:gravity="center_horizontal|center_vertical"
+        android:text="App Info"/>
+</LinearLayout>

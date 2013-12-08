@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="6dp"
+    android:paddingLeft="3dp"
+    android:paddingBottom="6dp"
+    android:paddingRight="3dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/adapter_message_friend_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:text="Albert Widiatmoko"
+            android:textSize="22dp"
+            android:textColor="@color/black"/>
+
+        <TextView
+            android:id="@+id/adapter_message_last_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/adapter_message_friend_name"
+            android:layout_marginTop="3dp"
+            android:layout_marginLeft="2dp"
+            android:text="teks terakhir ini broadasdasdasdasdasdd"
+            android:textSize="13dp"
+            android:textColor="@color/last_message"/>
+
+        <TextView
+            android:id="@+id/adapter_message_last_message_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@id/adapter_message_friend_name"
+            android:layout_marginRight="2dp"
+            android:layout_marginTop="8dp"
+            android:layout_alignParentRight="true"
+            android:textSize="12dp"
+            android:textColor="@color/last_message"
+            android:text="12/12/2013"/>
+
+        <TextView
+            android:id="@+id/adapter_message_last_message_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@id/adapter_message_last_message"
+            android:layout_below="@id/adapter_message_friend_name"
+            android:layout_marginRight="2dp"
+            android:layout_alignParentRight="true"
+            android:textSize="12dp"
+            android:textColor="@color/last_message"
+            android:text="20:00PM"/>
+
+    </RelativeLayout>
+
+
+</LinearLayout>

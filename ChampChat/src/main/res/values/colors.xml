@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="holo_blue">#FF33B5E5</color>
+    <color name="grey_light">#F8F6F5</color>
+    <color name="last_message">#cacaca</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="send_box_color">#E5E5E5</color>
+    <color name="time">#636363</color>
+    <color name ="username1">#8936FE</color>
+    <color name ="username2">#4B80FE</color>
+</resources>
