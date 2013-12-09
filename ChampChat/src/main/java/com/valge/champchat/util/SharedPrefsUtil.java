@@ -15,6 +15,7 @@ public class SharedPrefsUtil {
     public static final String KEY_HAVE_FRIENDS = "HAVEFRIENDS";
     public static final String KEY_USER_ID = "USERID";
     public static final String PROPERTY_REG_ID = "gcm_id";
+    public static final String KEY_ACTIVITY_LOCATION = "ACTIVITYLOCATION";
 
     private Context context;
 
@@ -26,6 +27,10 @@ public class SharedPrefsUtil {
     public SharedPrefsUtil(Context context) {
         appActivated = false;
         this.context = context;
+    }
+
+    public void saveApplicationPrefs() {
+
     }
 
     public void loadApplicationPrefs() {

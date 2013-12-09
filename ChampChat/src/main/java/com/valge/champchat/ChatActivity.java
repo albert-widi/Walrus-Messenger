@@ -11,7 +11,6 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +21,7 @@ import android.widget.SearchView;
 
 import com.valge.champchat.gcm_package.GCMBroadcastReceiver;
 import com.valge.champchat.list_view_adapter.FriendMessageListAdapter;
+import com.valge.champchat.util.ActivityLocationSharedPrefs;
 import com.valge.champchat.util.DbAdapter;
 import com.valge.champchat.util.FriendMessage;
 import com.valge.champchat.util.IntentExtrasUtil;
@@ -70,6 +70,8 @@ public class ChatActivity extends Activity {
 
         System.out.println("Creating chat activity");
         context = getApplicationContext();
+        ActivityLocationSharedPrefs activityLocationSharedPrefs = new ActivityLocationSharedPrefs(context);
+        activityLocationSharedPrefs.saveLastActivityToNonChat();
 
         //load shared prefs
         SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(context);
@@ -159,7 +161,6 @@ public class ChatActivity extends Activity {
             String phoneNumber;
             String friendName;
             String friendGcmId;
-            String friendPublicKeyString;
             byte[] friendPublicKey;
             @Override
             protected Object doInBackground(Object[] params) {
@@ -174,10 +175,10 @@ public class ChatActivity extends Activity {
                             friendDataCursor.moveToFirst();
                             friendName = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_NAME));
                             friendGcmId = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_GCM_ID));
-                            friendPublicKeyString = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
+                            friendPublicKey = friendDataCursor.getBlob(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
                         }
+                        friendDataCursor.close();
 
-                        friendPublicKey = Base64.decode(friendPublicKeyString, Base64.DEFAULT);
                         FriendMessage friendMessage = new FriendMessage(friendName, phoneNumber, friendGcmId, friendPublicKey);
 
                         Cursor messageCursor = dbAdapter.getFriendLastMessage(phoneNumber);
@@ -260,8 +261,8 @@ public class ChatActivity extends Activity {
                     friendDataCursor.moveToFirst();
                     friendName = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_NAME));
                     friendGcmId = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_GCM_ID));
-                    String friendPublicKeyString = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
-                    friendPublicKey = Base64.decode(friendPublicKeyString, Base64.DEFAULT);
+                    friendPublicKey = friendDataCursor.getBlob(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
+                    //friendPublicKey = Base64.decode(friendPublicKeyString, Base64.DEFAULT);
                     FriendMessage friendMessage = new FriendMessage(friendName, phoneNumber, friendGcmId, friendPublicKey);
                     friendMessage.lastMessageDate = date;
                     friendMessage.lastMessageTime = time;
@@ -323,6 +324,13 @@ public class ChatActivity extends Activity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 System.out.println("Stop : " + intent.getStringExtra("message"));
+                ActivityLocationSharedPrefs activityLocationSharedPrefs = new ActivityLocationSharedPrefs(context);
+                if(activityLocationSharedPrefs.isChatActivityActive()) {
+                    //broadcast to chat activity
+                }
+                else {
+                    //show notification
+                }
             }
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(onStopReceiver, new IntentFilter("messageIntent"));

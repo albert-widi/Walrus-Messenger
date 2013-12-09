@@ -163,9 +163,9 @@ public class FriendsActivity extends Activity {
             }
 
             protected void onPostExecute(Object result) {
-                if(!haveFriends) {
+                /*if(!haveFriends) {
                     getLoadedFriendList();
-                }
+                }*/
             };
         }.execute(null, null, null);
     }
@@ -338,8 +338,6 @@ public class FriendsActivity extends Activity {
                         byte[] key = cursor.getBlob(cursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
 
                         Friend friend = new Friend(name, phoneNumber, gcmId, key);
-                        Cursor messageCursor = dbAdapter.getMessage(phoneNumber);
-
                         friendArrayList.add(friend);
                     }while(cursor.moveToNext());
                 }
