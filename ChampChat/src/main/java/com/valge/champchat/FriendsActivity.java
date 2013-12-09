@@ -177,6 +177,7 @@ public class FriendsActivity extends Activity {
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null,
                 null, null, null);
 
+        System.out.println("Contacts lenght = " + cur.getCount());
         if(cur.getCount() > 0) {
             while(cur.moveToNext()) {
                 String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
@@ -191,6 +192,8 @@ public class FriendsActivity extends Activity {
                     while(pCur.moveToNext()) {
                         String name = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
                         String phoneNo =   pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        phoneNo = phoneNo.replaceAll("-", "");
+                        phoneNo = phoneNo.replaceAll(" ", "");
                         friendList += phoneNo + ";";
                         System.out.println("Name : " + name + "Number : " + phoneNo);
                     }
@@ -200,7 +203,9 @@ public class FriendsActivity extends Activity {
             }
 
             int stringLength = friendList.length();
+            System.out.println("Friend list length = " + stringLength);
             friendList = friendList.substring(0, stringLength-1);
+            System.out.println("Friend list: " + friendList);
         }
         else {
             //Toast.makeText(context, text, duration)

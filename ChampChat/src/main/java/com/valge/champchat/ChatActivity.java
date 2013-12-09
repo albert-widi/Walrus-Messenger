@@ -287,12 +287,12 @@ public class ChatActivity extends Activity {
         super.onResume();
         System.out.println("This is on resume on Chat activity");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(onStopReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(onPauseReceiver);
         onResumeReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                processMessage(context, intent, "onpause");
-                System.out.println("Berhasil bok : " + intent.getStringExtra("message"));
-
+            //processMessage(context, intent, "onpause");
+            System.out.println("Resume : " + intent.getStringExtra("message"));
             }
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(onResumeReceiver, new IntentFilter("messageIntent"));
@@ -303,10 +303,11 @@ public class ChatActivity extends Activity {
         super.onPause();
         System.out.println("This is on pause on Chat activity");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(onResumeReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(onStopReceiver);
         onPauseReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                System.out.println("Berhasil bok : " + intent.getStringExtra("message"));
+                System.out.println("Pause : " + intent.getStringExtra("message"));
             }
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(onPauseReceiver, new IntentFilter("messageIntent"));
@@ -317,10 +318,11 @@ public class ChatActivity extends Activity {
         super.onStop();
         System.out.println("This is on stop on Chat activity");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(onPauseReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(onResumeReceiver);
         onStopReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                System.out.println("Berhasil bok : " + intent.getStringExtra("message"));
+                System.out.println("Stop : " + intent.getStringExtra("message"));
             }
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(onStopReceiver, new IntentFilter("messageIntent"));
