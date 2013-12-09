@@ -140,18 +140,26 @@ public class DbAdapter {
         return cursor;
     }
 
-    public Cursor getFriendInfo(String phoneNumber) {
+    public Cursor getFriendInfo(String filter, String filterSelection) {
         openConnection();
         String[] columns = {DbHelper.COLUMN_FRIEND_NAME,
                 DbHelper.COLUMN_FRIEND_GCM_ID,
-                DbHelper.COLUMN_FRIEND_PUBLIC_KEY};
-        String[] selectionArg = {phoneNumber};
+                DbHelper.COLUMN_FRIEND_PUBLIC_KEY,};
+        String[] selectionArg = {filter};
 
-        Cursor cursor = db.query(DbHelper.TABLE_MESSAGE_HISTORY,
-                columns,
-                DbHelper.COLUMN_MESSAGE_WITH + " = ?",
-                selectionArg, null, null, DbHelper.COLUMN_ID);
-
+        Cursor cursor;
+        if(filterSelection.equalsIgnoreCase("phonenumber")) {
+            cursor = db.query(DbHelper.TABLE_MESSAGE_HISTORY,
+                    columns,
+                    DbHelper.COLUMN_MESSAGE_WITH + " = ?",
+                    selectionArg, null, null, DbHelper.COLUMN_ID);
+        }
+        else {
+            cursor = db.query(DbHelper.TABLE_MESSAGE_HISTORY,
+                    columns,
+                    DbHelper.COLUMN_FRIEND_GCM_ID + " = ?",
+                    selectionArg, null, null, DbHelper.COLUMN_ID);
+        }
         return cursor;
     }
 

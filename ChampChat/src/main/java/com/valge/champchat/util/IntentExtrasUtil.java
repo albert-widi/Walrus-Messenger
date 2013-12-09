@@ -6,6 +6,7 @@ package com.valge.champchat.util;
 public class IntentExtrasUtil {
     public final static String XTRAS_ACTIV_USERNAME = "NAMEACTIVXTRAS";
     public final static String XTRAS_ACTIV_PRIVATEKEY = "PRIVATEKEYACTIVXTRAS";
+    public final static String XTRAS_ACTIV_PHONENUMBER ="PHONENUMBERACTIVXTRAS";
     public final static String XTRAS_ACTIV_GCMID = "GCMIDACTIVXTRAS";
 
     public static final String XTRAS_FRIEND_NAME = "friendnamextras";
@@ -15,6 +16,7 @@ public class IntentExtrasUtil {
 
     public static final String XTRAS_USER_NAME = "usernamextras";
     public static final String XTRAS_USER_PRIVATE_KEY = "userprivatekeyxtras";
+    public static final String XTRAS_USER_PHONE_NUMBER = "userphonenumberxtras";
 
     //phonenumberregistration
     public final static String XTRAS_NAME_USERNAME = "USERNAMEXTRAS";

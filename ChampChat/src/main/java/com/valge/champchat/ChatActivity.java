@@ -28,6 +28,8 @@ import com.valge.champchat.util.IntentExtrasUtil;
 import com.valge.champchat.util.SharedPrefsUtil;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class ChatActivity extends Activity {
     Context context;
@@ -37,6 +39,7 @@ public class ChatActivity extends Activity {
     //app variable
     private String userName;
     private byte[] privateKey;
+    private String userPhoneNumber;
 
     //messages
     ArrayList<FriendMessage> messageArrayList = new ArrayList<FriendMessage>();
@@ -65,7 +68,10 @@ public class ChatActivity extends Activity {
                     .commit();
         }
 
+        System.out.println("Creating chat activity");
         context = getApplicationContext();
+
+        //load shared prefs
         SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(context);
         sharedPrefsUtil.loadApplicationPrefs();
         if(!sharedPrefsUtil.appActivated) {
@@ -73,6 +79,9 @@ public class ChatActivity extends Activity {
             startActivity(intent);
             this.finish();
         }
+        userName = sharedPrefsUtil.userName;
+        privateKey = sharedPrefsUtil.privateKey;
+        userPhoneNumber = sharedPrefsUtil.phoneNumber;
 
         context = this;
         dbAdapter = new DbAdapter(context);
@@ -139,6 +148,7 @@ public class ChatActivity extends Activity {
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+        System.out.println("On create post chat activity");
         loadMessageListFromDB();
     }
 
@@ -158,13 +168,13 @@ public class ChatActivity extends Activity {
                 if(friendMessageCursor.getCount() > 0) {
                     while(friendMessageCursor.moveToNext()) {
                         phoneNumber = friendMessageCursor.getString(friendMessageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_WITH));
-                        Cursor friendDataCursor = dbAdapter.getFriendInfo(phoneNumber);
+                        Cursor friendDataCursor = dbAdapter.getFriendInfo(phoneNumber, "phonenumber");
 
                         if(friendDataCursor.getCount() > 0) {
                             friendDataCursor.moveToFirst();
-                            friendName = friendDataCursor.getString(friendMessageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_NAME));
-                            friendGcmId = friendDataCursor.getString(friendMessageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_GCM_ID));
-                            friendPublicKeyString = friendDataCursor.getString(friendMessageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
+                            friendName = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_NAME));
+                            friendGcmId = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_GCM_ID));
+                            friendPublicKeyString = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
                         }
 
                         friendPublicKey = Base64.decode(friendPublicKeyString, Base64.DEFAULT);
@@ -174,9 +184,9 @@ public class ChatActivity extends Activity {
 
                         if(messageCursor.getCount() > 0) {
                             messageCursor.moveToFirst();
-                            String lastMessage = messageCursor.getString(friendMessageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE));
-                            String messageDate = messageCursor.getString(friendMessageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_TIME_DATE));
-                            String messageTime = messageCursor.getString(friendMessageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_TIME_TIMESTAMP));
+                            String lastMessage = messageCursor.getString(messageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE));
+                            String messageDate = messageCursor.getString(messageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_TIME_DATE));
+                            String messageTime = messageCursor.getString(messageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_TIME_TIMESTAMP));
 
                             if(lastMessage.length() > 35) {
                                 lastMessage = lastMessage.substring(0, 32) + "...";
@@ -206,7 +216,69 @@ public class ChatActivity extends Activity {
             fmla = new FriendMessageListAdapter(context, messageArrayList);
             messageListView = (ListView) findViewById(R.id.friends_message_listview);
             messageListView.setAdapter(fmla);
-            //messageListView.notify();
+        }
+    }
+
+    private void updateMessageList() {
+
+    }
+
+    private void processMessage(Context context, Intent intent, String condition) {
+        GregorianCalendar gCalendar = new GregorianCalendar();
+        String message = intent.getStringExtra("message");
+        String messageKey = intent.getStringExtra("messageKey");
+        String messageHash = intent.getStringExtra("messageHash");
+        String phoneNumber = intent.getStringExtra("phoneNumber");
+
+        //date-time
+        String date = gCalendar.get(Calendar.DATE) + "-" + gCalendar.get(Calendar.MONTH) + "-" + gCalendar.get(Calendar.YEAR) + " /";
+        String time = gCalendar.get(Calendar.HOUR) + ":" + gCalendar.get(Calendar.MINUTE);
+
+        //MessageDigest digest = MessageDigest.getInstance("MD5");
+        //digest.update(message);
+        //byte[] messageDigest = digest.digest();
+
+        if(condition.equalsIgnoreCase("onresume")) {
+            //load friend information
+            String friendName;
+            String friendGcmId;
+            byte[] friendPublicKey;
+
+            boolean friendExists = false;
+            int messageListLength = messageArrayList.size();
+            for(int i = 0; i < messageListLength; i++) {
+                if(messageArrayList.get(i).phoneNumber.equalsIgnoreCase(phoneNumber)) {
+                    friendExists = true;
+                    break;
+                }
+            }
+
+            if(!friendExists) {
+                Cursor friendDataCursor = dbAdapter.getFriendInfo(phoneNumber, "phonenumber");
+
+                if(friendDataCursor.getCount() > 0) {
+                    friendDataCursor.moveToFirst();
+                    friendName = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_NAME));
+                    friendGcmId = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_GCM_ID));
+                    String friendPublicKeyString = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
+                    friendPublicKey = Base64.decode(friendPublicKeyString, Base64.DEFAULT);
+                    FriendMessage friendMessage = new FriendMessage(friendName, phoneNumber, friendGcmId, friendPublicKey);
+                    friendMessage.lastMessageDate = date;
+                    friendMessage.lastMessageTime = time;
+
+                    //do message decryption
+
+                }
+                else {
+                    return;
+                }
+            }
+        }
+        else if(condition.equalsIgnoreCase("onpause")) {
+
+        }
+        else {
+
         }
     }
 
@@ -214,10 +286,13 @@ public class ChatActivity extends Activity {
     protected void onResume() {
         super.onResume();
         System.out.println("This is on resume on Chat activity");
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(onStopReceiver);
         onResumeReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                processMessage(context, intent, "onpause");
                 System.out.println("Berhasil bok : " + intent.getStringExtra("message"));
+
             }
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(onResumeReceiver, new IntentFilter("messageIntent"));
@@ -227,13 +302,27 @@ public class ChatActivity extends Activity {
     protected void onPause() {
         super.onPause();
         System.out.println("This is on pause on Chat activity");
-        IntentFilter filter = new IntentFilter("com.google.android.c2dm.intent.RECEIVE");
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(onResumeReceiver);
+        onPauseReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                System.out.println("Berhasil bok : " + intent.getStringExtra("message"));
+            }
+        };
+        LocalBroadcastManager.getInstance(this).registerReceiver(onPauseReceiver, new IntentFilter("messageIntent"));
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         System.out.println("This is on stop on Chat activity");
-        IntentFilter filter = new IntentFilter("com.google.android.c2dm.intent.RECEIVE");
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(onPauseReceiver);
+        onStopReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                System.out.println("Berhasil bok : " + intent.getStringExtra("message"));
+            }
+        };
+        LocalBroadcastManager.getInstance(this).registerReceiver(onStopReceiver, new IntentFilter("messageIntent"));
     }
 }

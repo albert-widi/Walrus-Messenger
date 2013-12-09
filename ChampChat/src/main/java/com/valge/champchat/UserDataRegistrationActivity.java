@@ -188,6 +188,7 @@ public class UserDataRegistrationActivity extends Activity {
         intent.putExtra(IntentExtrasUtil.XTRAS_ACTIV_USERNAME, userName);
         intent.putExtra(IntentExtrasUtil.XTRAS_ACTIV_PRIVATEKEY, stringPrivateKey);
         intent.putExtra(IntentExtrasUtil.XTRAS_ACTIV_GCMID, regid);
+        intent.putExtra(IntentExtrasUtil.XTRAS_ACTIV_PHONENUMBER, phoneNumber);
         startActivity(intent);
         UserDataRegistrationActivity.this.finish();
     }
