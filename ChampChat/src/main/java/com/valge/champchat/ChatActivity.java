@@ -23,6 +23,7 @@ import com.valge.champchat.gcm_package.GCMBroadcastReceiver;
 import com.valge.champchat.list_view_adapter.FriendMessageListAdapter;
 import com.valge.champchat.util.ActivityLocationSharedPrefs;
 import com.valge.champchat.util.DbAdapter;
+import com.valge.champchat.util.EncryptionUtil;
 import com.valge.champchat.util.FriendMessage;
 import com.valge.champchat.util.IntentExtrasUtil;
 import com.valge.champchat.util.SharedPrefsUtil;
@@ -169,12 +170,14 @@ public class ChatActivity extends Activity {
                 if(friendMessageCursor.getCount() > 0) {
                     while(friendMessageCursor.moveToNext()) {
                         phoneNumber = friendMessageCursor.getString(friendMessageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_WITH));
+                        phoneNumber = dbAdapter.unescapeSqlString(phoneNumber);
                         Cursor friendDataCursor = dbAdapter.getFriendInfo(phoneNumber, "phonenumber");
 
                         if(friendDataCursor.getCount() > 0) {
                             friendDataCursor.moveToFirst();
                             friendName = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_NAME));
                             friendGcmId = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_GCM_ID));
+                            friendGcmId = dbAdapter.unescapeSqlString(friendGcmId);
                             friendPublicKey = friendDataCursor.getBlob(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
                         }
                         friendDataCursor.close();
@@ -186,6 +189,7 @@ public class ChatActivity extends Activity {
                         if(messageCursor.getCount() > 0) {
                             messageCursor.moveToFirst();
                             String lastMessage = messageCursor.getString(messageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE));
+                            lastMessage = dbAdapter.unescapeSqlString(lastMessage);
                             String messageDate = messageCursor.getString(messageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_TIME_DATE));
                             String messageTime = messageCursor.getString(messageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_TIME_TIMESTAMP));
 
@@ -225,7 +229,10 @@ public class ChatActivity extends Activity {
     }
 
     private void processMessage(Context context, Intent intent, String condition) {
+        System.out.println("Process Message: Processing message");
         GregorianCalendar gCalendar = new GregorianCalendar();
+        EncryptionUtil encryptionUtil = new EncryptionUtil();
+
         String message = intent.getStringExtra("message");
         String messageKey = intent.getStringExtra("messageKey");
         String messageHash = intent.getStringExtra("messageHash");
@@ -235,9 +242,8 @@ public class ChatActivity extends Activity {
         String date = gCalendar.get(Calendar.DATE) + "-" + gCalendar.get(Calendar.MONTH) + "-" + gCalendar.get(Calendar.YEAR) + " /";
         String time = gCalendar.get(Calendar.HOUR) + ":" + gCalendar.get(Calendar.MINUTE);
 
-        //MessageDigest digest = MessageDigest.getInstance("MD5");
-        //digest.update(message);
-        //byte[] messageDigest = digest.digest();
+        String originalMessage = encryptionUtil.decryptMessage(message, messageKey, messageHash, context);
+        System.out.println("Process Message: Original Message = " + originalMessage);
 
         if(condition.equalsIgnoreCase("onresume")) {
             //load friend information
@@ -261,13 +267,14 @@ public class ChatActivity extends Activity {
                     friendDataCursor.moveToFirst();
                     friendName = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_NAME));
                     friendGcmId = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_GCM_ID));
+                    friendGcmId = dbAdapter.unescapeSqlString(friendGcmId);
                     friendPublicKey = friendDataCursor.getBlob(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
                     //friendPublicKey = Base64.decode(friendPublicKeyString, Base64.DEFAULT);
                     FriendMessage friendMessage = new FriendMessage(friendName, phoneNumber, friendGcmId, friendPublicKey);
                     friendMessage.lastMessageDate = date;
                     friendMessage.lastMessageTime = time;
 
-                    //do message decryption
+                    //save message to db
 
                 }
                 else {

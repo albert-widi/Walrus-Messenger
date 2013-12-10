@@ -4,6 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Base64;
 
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.spec.X509EncodedKeySpec;
+
 public class SharedPrefsUtil {
 	//prefs
     public static final String PREFS_NAME = "EAndroidIMPrefs";
@@ -22,10 +26,9 @@ public class SharedPrefsUtil {
     public String userName;
     public String phoneNumber;
     public byte[] privateKey;
-    public boolean appActivated;
+    public boolean appActivated = false;
 
     public SharedPrefsUtil(Context context) {
-        appActivated = false;
         this.context = context;
     }
 
@@ -39,5 +42,19 @@ public class SharedPrefsUtil {
         userName = sprefs.getString(SharedPrefsUtil.KEY_USER_NAME, "");
         phoneNumber = sprefs.getString(SharedPrefsUtil.KEY_PHONE_NUMBER, "");
         privateKey = Base64.decode(sprefs.getString(SharedPrefsUtil.KEY_PRIVATE_KEY, ""), Base64.DEFAULT);
+    }
+
+    public PrivateKey getUserPrivateKey() {
+        SharedPreferences sprefs = context.getSharedPreferences(SharedPrefsUtil.PREFS_NAME, context.MODE_PRIVATE);
+        byte[] privateKey = Base64.decode(sprefs.getString(SharedPrefsUtil.KEY_PRIVATE_KEY, ""), Base64.DEFAULT);
+        PrivateKey userPrivateKey = null;
+        try{
+            userPrivateKey = KeyFactory.getInstance("RSA").generatePrivate(new X509EncodedKeySpec(privateKey));
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return userPrivateKey;
     }
 }

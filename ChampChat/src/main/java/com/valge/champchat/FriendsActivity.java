@@ -333,8 +333,10 @@ public class FriendsActivity extends Activity {
                     do {
                         String name = cursor.getString(cursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_NAME));
                         System.out.println("Name : " + name);
-                        String phoneNumber = "+" + cursor.getString(cursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PHONE_NUMBER));
+                        String phoneNumber = cursor.getString(cursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PHONE_NUMBER));
+                        phoneNumber = dbAdapter.unescapeSqlString(phoneNumber);
                         String gcmId = cursor.getString(cursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_GCM_ID));
+                        gcmId = dbAdapter.unescapeSqlString(gcmId);
                         byte[] key = cursor.getBlob(cursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
 
                         Friend friend = new Friend(name, phoneNumber, gcmId, key);

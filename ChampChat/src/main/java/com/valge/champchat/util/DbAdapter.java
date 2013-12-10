@@ -3,6 +3,7 @@ package com.valge.champchat.util;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -41,9 +42,9 @@ public class DbAdapter {
     public boolean registerUser(String phoneNumber, String userName, String gcmId, String secretKey, byte[] privateKey) {
         openConnection();
         ContentValues values = new ContentValues();
-        values.put(DbHelper.COLUMN_USER_PHONE_NUMBER, phoneNumber);
+        values.put(DbHelper.COLUMN_USER_PHONE_NUMBER, DatabaseUtils.sqlEscapeString(phoneNumber));
         values.put(DbHelper.COLUMN_USER_NAME, userName);
-        values.put(DbHelper.COLUMN_USER_GCM_ID, gcmId);
+        values.put(DbHelper.COLUMN_USER_GCM_ID, DatabaseUtils.sqlEscapeString(gcmId));
         values.put(DbHelper.COLUMN_SECRET_PASS, secretKey);
         values.put(DbHelper.COLUMN_PRIVATE_KEY, privateKey);
 
@@ -68,7 +69,7 @@ public class DbAdapter {
 
         //check if friend already exists
         String[] columns = {DbHelper.COLUMN_FRIEND_PHONE_NUMBER};
-        String[] selectionArg = {phoneNumber};
+        String[] selectionArg = {DatabaseUtils.sqlEscapeString(phoneNumber)};
         Cursor cursor = db.query(DbHelper.TABLE_FRIEND_LIST,
                 columns,
                 DbHelper.COLUMN_FRIEND_PHONE_NUMBER + " = ?",
@@ -77,7 +78,7 @@ public class DbAdapter {
         if(cursor.getCount() > 0) {
             ContentValues values = new ContentValues();
             values.put(DbHelper.COLUMN_FRIEND_NAME, name);
-            values.put(DbHelper.COLUMN_FRIEND_GCM_ID, gcmId);
+            values.put(DbHelper.COLUMN_FRIEND_GCM_ID, DatabaseUtils.sqlEscapeString(gcmId));
             values.put(DbHelper.COLUMN_FRIEND_PUBLIC_KEY, publicKey);
 
             long id = db.update(DbHelper.TABLE_FRIEND_LIST,
@@ -94,8 +95,8 @@ public class DbAdapter {
         else {
             ContentValues values = new ContentValues();
             values.put(DbHelper.COLUMN_FRIEND_NAME, name);
-            values.put(DbHelper.COLUMN_FRIEND_PHONE_NUMBER, phoneNumber);
-            values.put(DbHelper.COLUMN_FRIEND_GCM_ID, gcmId);
+            values.put(DbHelper.COLUMN_FRIEND_PHONE_NUMBER, DatabaseUtils.sqlEscapeString(phoneNumber));
+            values.put(DbHelper.COLUMN_FRIEND_GCM_ID, DatabaseUtils.sqlEscapeString(gcmId));
             values.put(DbHelper.COLUMN_FRIEND_PUBLIC_KEY, publicKey);
 
             long id = db.insert(DbHelper.TABLE_FRIEND_LIST, null, values);
@@ -114,9 +115,9 @@ public class DbAdapter {
     public boolean updateFriend(String name, String phoneNumber, String gcmId, byte[] publicKey) {
         openConnection();
         ContentValues values = new ContentValues();
-        String[] selectionArg = {phoneNumber};
+        String[] selectionArg = {DatabaseUtils.sqlEscapeString(phoneNumber)};
         values.put(DbHelper.COLUMN_FRIEND_NAME, name);
-        values.put(DbHelper.COLUMN_FRIEND_GCM_ID, gcmId);
+        values.put(DbHelper.COLUMN_FRIEND_GCM_ID, DatabaseUtils.sqlEscapeString(gcmId));
         values.put(DbHelper.COLUMN_FRIEND_PUBLIC_KEY, publicKey);
 
         long id = db.update(DbHelper.TABLE_FRIEND_LIST,
@@ -145,7 +146,7 @@ public class DbAdapter {
         String[] columns = {DbHelper.COLUMN_FRIEND_NAME,
                 DbHelper.COLUMN_FRIEND_GCM_ID,
                 DbHelper.COLUMN_FRIEND_PUBLIC_KEY,};
-        String[] selectionArg = {filter};
+        String[] selectionArg = {DatabaseUtils.sqlEscapeString(filter)};
 
         Cursor cursor;
         if(filterSelection.equalsIgnoreCase("phonenumber")) {
@@ -164,8 +165,21 @@ public class DbAdapter {
     }
 
     //message
-    public void saveMessage() {
+    public boolean saveMessage(String phoneNumber, String friendName, String message, String date, String time) {
+        openConnection();
+        ContentValues values = new ContentValues();
+        values.put(DbHelper.COLUMN_MESSAGE_WITH, DatabaseUtils.sqlEscapeString(phoneNumber));
+        values.put(DbHelper.COLUMN_MESSAGE_FROM, friendName);
+        values.put(DbHelper.COLUMN_MESSAGE, DatabaseUtils.sqlEscapeString(phoneNumber));
+        values.put(DbHelper.COLUMN_MESSAGE_TIME_DATE, date);
+        values.put(DbHelper.COLUMN_MESSAGE_TIME_TIMESTAMP, time);
+        long id = db.insert(DbHelper.TABLE_FRIEND_LIST, null, values);
+        closeConnection();
 
+        if(id == -1) {
+            return false;
+        }
+        return true;
     }
 
     public Cursor getAllMessage() {
@@ -230,6 +244,10 @@ public class DbAdapter {
     public boolean databaseExists() {
         File database = appContext.getDatabasePath(DbHelper.DATABASE_NAME);
         return database.exists();
+    }
+
+    public String unescapeSqlString(String escapedString) {
+        return escapedString.substring(1, escapedString.length()-1);
     }
 
     //dbhelper class
