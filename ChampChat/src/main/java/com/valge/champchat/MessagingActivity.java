@@ -2,9 +2,12 @@ package com.valge.champchat;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,9 +20,9 @@ import android.widget.ListView;
 
 import com.valge.champchat.gcm_package.GCMBroadcastReceiver;
 import com.valge.champchat.list_view_adapter.MessagingAdapter;
+import com.valge.champchat.util.ActivityLocationSharedPrefs;
 import com.valge.champchat.util.IntentExtrasUtil;
 import com.valge.champchat.util.Message;
-import com.valge.champchat.R;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -50,6 +53,11 @@ public class MessagingActivity extends Activity {
     //editext
     EditText editMessage;
 
+    //broadCastReceiver
+    BroadcastReceiver onPauseReceiver;
+    BroadcastReceiver onResumeReceiver;
+    BroadcastReceiver onStopReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +68,10 @@ public class MessagingActivity extends Activity {
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
+
+        Context context = getApplicationContext();
+        ActivityLocationSharedPrefs activityLocationSharedPrefs = new ActivityLocationSharedPrefs(context);
+        activityLocationSharedPrefs.saveLastActivityToChat();
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         context = getApplicationContext();
@@ -118,7 +130,7 @@ public class MessagingActivity extends Activity {
         super.onPostCreate(savedInstanceState);
 
         ListView messageList = (ListView) findViewById(R.id.message_list);
-        messagingAdapater = new MessagingAdapter(context, message);
+        messagingAdapater = new MessagingAdapter(getApplicationContext(), message);
         messageList.setAdapter(messagingAdapater);
 
         sendButton = (Button) findViewById(R.id.send_button);
@@ -143,7 +155,7 @@ public class MessagingActivity extends Activity {
         String date = gCalendar.get(Calendar.DATE) + "-" + gCalendar.get(Calendar.MONTH) + "-" + gCalendar.get(Calendar.YEAR) + " /";
         String time = gCalendar.get(Calendar.HOUR) + ":" + gCalendar.get(Calendar.MINUTE);
 
-        Message messageObject = new Message(mText, userName, date, time);
+        Message messageObject = new Message(mText, userName, date, time, "SEND");
         message.add(messageObject);
         messagingAdapater.notifyDataSetChanged();
         editMessage.setText("");
@@ -151,5 +163,56 @@ public class MessagingActivity extends Activity {
 
     public void messageHandler() {
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(onPauseReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(onStopReceiver);
+        onPauseReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                System.out.println("Pause : " + intent.getStringExtra("message"));
+            }
+        };
+        LocalBroadcastManager.getInstance(this).registerReceiver(onPauseReceiver, new IntentFilter("messagingactiv"));
+        //Message messageObject = new Message(mText, userName, date, time, "SEND");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(onResumeReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(onStopReceiver);
+        onPauseReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                System.out.println("Pause : " + intent.getStringExtra("message"));
+            }
+        };
+        LocalBroadcastManager.getInstance(this).registerReceiver(onPauseReceiver, new IntentFilter("messagingactiv"));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(onResumeReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(onPauseReceiver);
+        onPauseReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                System.out.println("Pause : " + intent.getStringExtra("message"));
+            }
+        };
+        LocalBroadcastManager.getInstance(this).registerReceiver(onPauseReceiver, new IntentFilter("messagingactiv"));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(onStopReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(onResumeReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(onPauseReceiver);
     }
 }

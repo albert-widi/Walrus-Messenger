@@ -2,12 +2,15 @@ package com.valge.champchat;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.valge.champchat.util.ActivityLocationSharedPrefs;
 
 public class AboutActivity extends Activity {
 
@@ -21,6 +24,9 @@ public class AboutActivity extends Activity {
                     .add(R.id.container, new PlaceholderFragment())
                     .commit();
         }
+        Context context = getApplicationContext();
+        ActivityLocationSharedPrefs activityLocationSharedPrefs = new ActivityLocationSharedPrefs(context);
+        activityLocationSharedPrefs.saveLastActivityToNonChat();
     }
 
 

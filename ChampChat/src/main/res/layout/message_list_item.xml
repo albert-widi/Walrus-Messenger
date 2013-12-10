@@ -63,6 +63,17 @@
             android:textSize="11dp"
             android:textColor="@color/time"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/message_adapter_text"
+            android:layout_toRightOf="@+id/message_adapter_time"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="5dp"
+            android:id="@+id/message_adapter_msgstatus"
+            android:textSize="11dp"
+            android:textColor="@color/time"/>
+
     </RelativeLayout>
 
 </LinearLayout>

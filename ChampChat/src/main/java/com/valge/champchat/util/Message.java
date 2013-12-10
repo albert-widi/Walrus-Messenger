@@ -8,12 +8,14 @@ public class Message {
     public String from;
     public String date;
     public String time;
+    public String status;
 
-    public Message(String text, String from, String date, String time) {
+    public Message(String text, String from, String date, String time, String status) {
         // TODO Auto-generated constructor stub
         this.text = text;
         this.from = from;
         this.date = date;
         this.time = time;
+        this.status = status;
     }
 }

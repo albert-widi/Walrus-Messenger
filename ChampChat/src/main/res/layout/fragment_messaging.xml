@@ -33,7 +33,9 @@
                 android:paddingLeft="5dp"
                 android:footerDividersEnabled="true"
                 android:divider="#00000000"
-                android:dividerHeight="8dp">
+                android:dividerHeight="8dp"
+                android:stackFromBottom="true"
+                android:transcriptMode="alwaysScroll">
 
 
             </ListView>

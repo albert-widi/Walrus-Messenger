@@ -170,7 +170,7 @@ public class DbAdapter {
         ContentValues values = new ContentValues();
         values.put(DbHelper.COLUMN_MESSAGE_WITH, DatabaseUtils.sqlEscapeString(phoneNumber));
         values.put(DbHelper.COLUMN_MESSAGE_FROM, friendName);
-        values.put(DbHelper.COLUMN_MESSAGE, DatabaseUtils.sqlEscapeString(phoneNumber));
+        values.put(DbHelper.COLUMN_MESSAGE, DatabaseUtils.sqlEscapeString(message));
         values.put(DbHelper.COLUMN_MESSAGE_TIME_DATE, date);
         values.put(DbHelper.COLUMN_MESSAGE_TIME_TIMESTAMP, time);
         long id = db.insert(DbHelper.TABLE_FRIEND_LIST, null, values);

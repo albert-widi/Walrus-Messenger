@@ -229,65 +229,127 @@ public class ChatActivity extends Activity {
     }
 
     private void processMessage(Context context, Intent intent, String condition) {
-        System.out.println("Process Message: Processing message");
-        GregorianCalendar gCalendar = new GregorianCalendar();
-        EncryptionUtil encryptionUtil = new EncryptionUtil();
+        final Context asyncContext = context;
+        final String asyncCondition = condition;
+        final Intent asyncIntent = intent;
 
-        String message = intent.getStringExtra("message");
-        String messageKey = intent.getStringExtra("messageKey");
-        String messageHash = intent.getStringExtra("messageHash");
-        String phoneNumber = intent.getStringExtra("phoneNumber");
+        new AsyncTask() {
+            Intent intent = asyncIntent;
+            Context context = asyncContext;
+            String condition = asyncCondition;
 
-        //date-time
-        String date = gCalendar.get(Calendar.DATE) + "-" + gCalendar.get(Calendar.MONTH) + "-" + gCalendar.get(Calendar.YEAR) + " /";
-        String time = gCalendar.get(Calendar.HOUR) + ":" + gCalendar.get(Calendar.MINUTE);
+            @Override
+            protected Object doInBackground(Object[] params) {
+                System.out.println("Process Message: Processing message");
+                GregorianCalendar gCalendar = new GregorianCalendar();
+                EncryptionUtil encryptionUtil = new EncryptionUtil();
 
-        String originalMessage = encryptionUtil.decryptMessage(message, messageKey, messageHash, context);
-        System.out.println("Process Message: Original Message = " + originalMessage);
+                String message = intent.getStringExtra("message");
+                String messageKey = intent.getStringExtra("messageKey");
+                String messageHash = intent.getStringExtra("messageHash");
+                String phoneNumber = intent.getStringExtra("phoneNumber");
+                String name = intent.getStringExtra("name");
 
-        if(condition.equalsIgnoreCase("onresume")) {
-            //load friend information
-            String friendName;
-            String friendGcmId;
-            byte[] friendPublicKey;
+                //date-time
+                String date = gCalendar.get(Calendar.DATE) + "-" + gCalendar.get(Calendar.MONTH) + "-" + gCalendar.get(Calendar.YEAR) + " /";
+                String time = gCalendar.get(Calendar.HOUR) + ":" + gCalendar.get(Calendar.MINUTE);
 
-            boolean friendExists = false;
-            int messageListLength = messageArrayList.size();
-            for(int i = 0; i < messageListLength; i++) {
-                if(messageArrayList.get(i).phoneNumber.equalsIgnoreCase(phoneNumber)) {
-                    friendExists = true;
-                    break;
+                String originalMessage = encryptionUtil.decryptMessage(message, messageKey, messageHash, context);
+                System.out.println("Process Message: Original Message = " + originalMessage);
+
+                if(condition.equalsIgnoreCase("onresume")) {
+                    System.out.println("Processing on resume message");
+                    //load friend information
+                    String friendName;
+                    String friendGcmId;
+                    byte[] friendPublicKey;
+
+                    boolean friendExists = false;
+                    int messageListLength = messageArrayList.size();
+                    int friendNumber = 0;
+                    for(int i = 0; i < messageListLength; i++) {
+                        if(messageArrayList.get(i).phoneNumber.equalsIgnoreCase(phoneNumber)) {
+                            friendExists = true;
+                            friendNumber = i;
+                            break;
+                        }
+                    }
+
+                    if(!friendExists) {
+                        System.out.println("Processing on resume message : friend not exists");
+                        Cursor friendDataCursor = dbAdapter.getFriendInfo(phoneNumber, "phonenumber");
+
+                        if(friendDataCursor.getCount() > 0) {
+                            friendDataCursor.moveToFirst();
+                            friendName = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_NAME));
+                            friendGcmId = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_GCM_ID));
+                            friendGcmId = dbAdapter.unescapeSqlString(friendGcmId);
+                            friendPublicKey = friendDataCursor.getBlob(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
+                            //friendPublicKey = Base64.decode(friendPublicKeyString, Base64.DEFAULT);
+                            FriendMessage friendMessage = new FriendMessage(friendName, phoneNumber, friendGcmId, friendPublicKey);
+                            friendMessage.lastMessage = originalMessage;
+                            friendMessage.lastMessageDate = date;
+                            friendMessage.lastMessageTime = time;
+
+                            //save message to db
+                            messageArrayList.add(friendMessage);
+                            friendDataCursor.close();
+                            if(dbAdapter.saveMessage(phoneNumber, friendName, originalMessage, date, time)) {
+                                System.out.println("Processing on resume message : Save message success");
+                            }
+                            else {
+                                System.out.println("Processing on resume message : Save message failed");
+                            }
+                        }
+                        else {
+                            System.out.println("Processing on resume message : Friend not exists in database");
+                            return "";
+                        }
+                    }
+                    else {
+                        messageArrayList.get(friendNumber).lastMessage = originalMessage;
+                        messageArrayList.get(friendNumber).lastMessageDate = date;
+                        messageArrayList.get(friendNumber).lastMessageTime = time;
+                    }
+
+                    runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            // TODO Auto-generated method stub
+                            fmla.notifyDataSetChanged();
+                        }
+                    });
                 }
-            }
-
-            if(!friendExists) {
-                Cursor friendDataCursor = dbAdapter.getFriendInfo(phoneNumber, "phonenumber");
-
-                if(friendDataCursor.getCount() > 0) {
-                    friendDataCursor.moveToFirst();
-                    friendName = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_NAME));
-                    friendGcmId = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_GCM_ID));
-                    friendGcmId = dbAdapter.unescapeSqlString(friendGcmId);
-                    friendPublicKey = friendDataCursor.getBlob(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
-                    //friendPublicKey = Base64.decode(friendPublicKeyString, Base64.DEFAULT);
-                    FriendMessage friendMessage = new FriendMessage(friendName, phoneNumber, friendGcmId, friendPublicKey);
-                    friendMessage.lastMessageDate = date;
-                    friendMessage.lastMessageTime = time;
-
-                    //save message to db
-
+                else if(condition.equalsIgnoreCase("onpause")) {
+                    System.out.println("Processing on pause message");
+                    //set notification
                 }
                 else {
-                    return;
+                    System.out.println("Processing on stop message");
+                    ActivityLocationSharedPrefs activityLocationSharedPrefs = new ActivityLocationSharedPrefs(context);
+                    if(activityLocationSharedPrefs.isChatActivityActive()) {
+                        Intent messagingIntent = new Intent("messagingactiv");
+                        intent.putExtra("name", name);
+                        intent.putExtra("phonenumber", phoneNumber);
+                        intent.putExtra("message", originalMessage);
+                        intent.putExtra("date", date);
+                        intent.putExtra("time", time);
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(messagingIntent);
+                    }
+                    else {
+                        //set notification
+
+                    }
                 }
+                return "";
             }
-        }
-        else if(condition.equalsIgnoreCase("onpause")) {
 
-        }
-        else {
-
-        }
+            @Override
+            protected void onPostExecute(Object o) {
+                super.onPostExecute(o);
+            }
+        }.execute(null, null, null);
     }
 
     @Override
@@ -331,13 +393,7 @@ public class ChatActivity extends Activity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 System.out.println("Stop : " + intent.getStringExtra("message"));
-                ActivityLocationSharedPrefs activityLocationSharedPrefs = new ActivityLocationSharedPrefs(context);
-                if(activityLocationSharedPrefs.isChatActivityActive()) {
-                    //broadcast to chat activity
-                }
-                else {
-                    //show notification
-                }
+
             }
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(onStopReceiver, new IntentFilter("messageIntent"));
