@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
@@ -19,10 +20,16 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.valge.champchat.gcm_package.GCMBroadcastReceiver;
+import com.valge.champchat.httppost.HttpPostModule;
 import com.valge.champchat.list_view_adapter.MessagingAdapter;
 import com.valge.champchat.util.ActivityLocationSharedPrefs;
+import com.valge.champchat.util.EncryptionUtil;
 import com.valge.champchat.util.IntentExtrasUtil;
 import com.valge.champchat.util.Message;
+import com.valge.champchat.util.MessageEncrypt;
+import com.valge.champchat.util.SharedPrefsUtil;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,9 +44,10 @@ public class MessagingActivity extends Activity {
 
     //user
     private String userName;
-    private byte[] privateKey;
+    private int userId;
 
     //friend variable
+    private int friendId;
     private String friendName;
     private String friendPhoneNumber;
     private String friendGcmId;
@@ -78,12 +86,16 @@ public class MessagingActivity extends Activity {
         gCalendar = new GregorianCalendar();
 
         Intent intent = getIntent();
+        friendId = intent.getExtras().getInt(IntentExtrasUtil.XTRAS_FRIEND_USER_ID);
         friendName = intent.getExtras().getString(IntentExtrasUtil.XTRAS_FRIEND_NAME);
         friendPhoneNumber = intent.getExtras().getString(IntentExtrasUtil.XTRAS_FRIEND_PHONENUMBER);
         friendGcmId = intent.getExtras().getString(IntentExtrasUtil.XTRAS_FRIEND_GCMID);
         friendPublicKey = intent.getExtras().getByteArray(IntentExtrasUtil.XTRAS_FRIEND_PUBLICKEY);
-        userName = intent.getExtras().getString(IntentExtrasUtil.XTRAS_USER_NAME);
-        privateKey = intent.getExtras().getByteArray(IntentExtrasUtil.XTRAS_USER_PRIVATE_KEY);
+
+        SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(context);
+        sharedPrefsUtil.loadApplicationPrefs();
+        userName = sharedPrefsUtil.userName;
+        userId = sharedPrefsUtil.userId;
 
         this.setTitle(friendName);
     }
@@ -144,6 +156,8 @@ public class MessagingActivity extends Activity {
                 sendMessage();
             }
         });
+
+        loadChatContent();
     }
 
     public void sendMessage() {
@@ -152,43 +166,133 @@ public class MessagingActivity extends Activity {
             return;
         }
         //Toast.makeText(context, mText, Toast.LENGTH_SHORT).show();
-        String date = gCalendar.get(Calendar.DATE) + "-" + gCalendar.get(Calendar.MONTH) + "-" + gCalendar.get(Calendar.YEAR) + " /";
-        String time = gCalendar.get(Calendar.HOUR) + ":" + gCalendar.get(Calendar.MINUTE);
+        String date = getCurrentDate();
+        String time = getCurrentTime();
 
         Message messageObject = new Message(mText, userName, date, time, "SEND");
         message.add(messageObject);
+        sendMessageToBackend(messageObject);
         messagingAdapater.notifyDataSetChanged();
         editMessage.setText("");
     }
 
-    public void messageHandler() {
+    private String getCurrentDate() {
+        return gCalendar.get(Calendar.DATE) + "-" + gCalendar.get(Calendar.MONTH) + "-" + gCalendar.get(Calendar.YEAR) + " /";
+    }
 
+    private String getCurrentTime() {
+        return gCalendar.get(Calendar.HOUR) + ":" + gCalendar.get(Calendar.MINUTE);
+    }
+
+    private void sendMessageToBackend(Message message) {
+        final Message messageToSend = message;
+
+        new AsyncTask() {
+            JSONObject jsonResponse = new JSONObject();
+            @Override
+            protected Object doInBackground(Object[] params) {
+                System.out.println("Send Message To Backend : Encrypt message");
+                EncryptionUtil encryptionUtil = new EncryptionUtil();
+                MessageEncrypt messageEncrypt = encryptionUtil.encryptMessage(messageToSend.text, friendPublicKey, getApplicationContext());
+
+                String postAction = "sendMessage";
+                String[] postData = {String.valueOf(userId), String.valueOf(friendId), messageEncrypt.encryptedMessage, messageEncrypt.messageKey, messageEncrypt.messageHash};
+                String[] postDataName = {"idsender", "idreceive", "message", "messagekey", "messagehash"};
+
+                System.out.println("Send Message To Backend : Send message to backend");
+                HttpPostModule httpPostModule = new HttpPostModule();
+                jsonResponse = httpPostModule.echatHttpPost(postAction, postData, postDataName);
+
+                return "";
+            }
+
+            @Override
+            protected void onPostExecute(Object o) {
+                super.onPostExecute(o);
+                try {
+                    if(jsonResponse.getString("message").equalsIgnoreCase("SEND_SUCCESS")) {
+                        messageToSend.status = "DELIVERED";
+                    }
+                    else {
+                        messageToSend.status = "FAILED";
+                    }
+
+                    //refresh adapter
+                    runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            // TODO Auto-generated method stub
+                            messagingAdapater.notifyDataSetChanged();
+                        }
+                    });
+                }
+                catch(Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }.execute(null, null, null);
+    }
+
+    private void loadChatContent() {
+
+    }
+
+    private void processMessage(Context context, Intent intent, String condition) {
+        System.out.println("Messaging Activity : Processing message to adapter/notification");
+        if(condition.equalsIgnoreCase("onresume")) {
+            System.out.println("Processing onresume in messaging activity");
+            String message = intent.getStringExtra("message");
+            String date = intent.getStringExtra("date");
+            String time = intent.getStringExtra("time");
+            Message newMessage = new Message(message, friendName, date, time, "");
+            messagingAdapater.add(newMessage);
+
+            runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    // TODO Auto-generated method stub
+                    messagingAdapater.notifyDataSetChanged();
+                }
+            });
+        }
+        else if(condition.equalsIgnoreCase("onpause")) {
+            System.out.println("Processing onpause in messaging activity");
+        }
+        else {
+            System.out.println("Processing onstop in messaging activity");
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        System.out.println("This is onresume in messaging");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(onPauseReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(onStopReceiver);
-        onPauseReceiver = new BroadcastReceiver() {
+        onResumeReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                System.out.println("Pause : " + intent.getStringExtra("message"));
+                processMessage(context, intent, "onresume");
+                //System.out.println("Pause : " + intent.getStringExtra("message"));
             }
         };
-        LocalBroadcastManager.getInstance(this).registerReceiver(onPauseReceiver, new IntentFilter("messagingactiv"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(onResumeReceiver, new IntentFilter("messagingactiv"));
         //Message messageObject = new Message(mText, userName, date, time, "SEND");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        System.out.println("This is onpause in messaging");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(onResumeReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(onStopReceiver);
         onPauseReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                System.out.println("Pause : " + intent.getStringExtra("message"));
+                processMessage(context, intent, "onpause");
+                //System.out.println("Pause : " + intent.getStringExtra("message"));
             }
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(onPauseReceiver, new IntentFilter("messagingactiv"));
@@ -197,15 +301,17 @@ public class MessagingActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
+        System.out.println("This is onstop in messaging");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(onResumeReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(onPauseReceiver);
-        onPauseReceiver = new BroadcastReceiver() {
+        onStopReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                System.out.println("Pause : " + intent.getStringExtra("message"));
+                processMessage(context, intent, "onstop");
+                //System.out.println("Pause : " + intent.getStringExtra("message"));
             }
         };
-        LocalBroadcastManager.getInstance(this).registerReceiver(onPauseReceiver, new IntentFilter("messagingactiv"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(onStopReceiver, new IntentFilter("messagingactiv"));
     }
 
     @Override

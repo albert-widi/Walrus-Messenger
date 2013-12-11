@@ -243,15 +243,14 @@ public class ChatActivity extends Activity {
             @Override
             protected Object doInBackground(Object[] params) {
                 System.out.println("Process Message: Processing message");
+                DbAdapter asyncDbAdapter = new DbAdapter(asyncContext);
                 GregorianCalendar gCalendar = new GregorianCalendar();
                 EncryptionUtil encryptionUtil = new EncryptionUtil();
 
                 String message = intent.getStringExtra("message");
-                String messageKey = intent.getStringExtra("messageKey");
-                String messageHash = intent.getStringExtra("messageHash");
-                int friendId = intent.getIntExtra("friendId", 0);
-                String phoneNumber = intent.getStringExtra("phoneNumber");
-                String name = intent.getStringExtra("name");
+                String messageKey = intent.getStringExtra("messagekey");
+                String messageHash = intent.getStringExtra("messagehash");
+                int friendId = Integer.parseInt(intent.getStringExtra("senderid"));
 
                 //debug
                 System.out.println("Process Message : Intent extra debug");
@@ -260,8 +259,6 @@ public class ChatActivity extends Activity {
                 System.out.println("Message Key:" + messageKey);
                 System.out.println("Message Hash:" + messageHash);
                 System.out.println("Friend ID:" + friendId);
-                System.out.println("Friend Phone:" + phoneNumber);
-                System.out.println("Friend Name:" + name);
                 System.out.println("=====================================");
 
                 //date-time
@@ -276,6 +273,7 @@ public class ChatActivity extends Activity {
                     //load friend information
                     String friendName;
                     String friendGcmId;
+                    String friendPhoneNumber;
                     byte[] friendPublicKey;
 
                     boolean friendExists = false;
@@ -291,7 +289,7 @@ public class ChatActivity extends Activity {
 
                     if(!friendExists) {
                         System.out.println("Processing on resume message : friend not exists");
-                        Cursor friendDataCursor = dbAdapter.getFriendInfo(friendId);
+                        Cursor friendDataCursor = asyncDbAdapter.getFriendInfo(friendId);
 
                         if(friendDataCursor.getCount() > 0) {
                             friendDataCursor.moveToFirst();
@@ -300,7 +298,8 @@ public class ChatActivity extends Activity {
                             //friendGcmId = dbAdapter.unescapeSqlString(friendGcmId);
                             friendPublicKey = friendDataCursor.getBlob(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
                             //friendPublicKey = Base64.decode(friendPublicKeyString, Base64.DEFAULT);
-                            FriendMessage friendMessage = new FriendMessage(friendId, friendName, phoneNumber, friendGcmId, friendPublicKey);
+                            friendPhoneNumber = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PHONE_NUMBER));
+                            FriendMessage friendMessage = new FriendMessage(friendId, friendName, friendPhoneNumber, friendGcmId, friendPublicKey);
                             friendMessage.lastMessage = originalMessage;
                             friendMessage.lastMessageDate = date;
                             friendMessage.lastMessageTime = time;
@@ -308,7 +307,7 @@ public class ChatActivity extends Activity {
                             //save message to db
                             messageArrayList.add(friendMessage);
                             friendDataCursor.close();
-                            if(dbAdapter.saveMessage(friendId, phoneNumber, friendName, originalMessage, date, time)) {
+                            if(asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, friendName, originalMessage, date, time, "")) {
                                 System.out.println("Processing on resume message : Save message success");
                             }
                             else {
@@ -344,8 +343,6 @@ public class ChatActivity extends Activity {
                     ActivityLocationSharedPrefs activityLocationSharedPrefs = new ActivityLocationSharedPrefs(context);
                     if(activityLocationSharedPrefs.isChatActivityActive()) {
                         Intent messagingIntent = new Intent("messagingactiv");
-                        intent.putExtra("name", name);
-                        intent.putExtra("phonenumber", phoneNumber);
                         intent.putExtra("message", originalMessage);
                         intent.putExtra("date", date);
                         intent.putExtra("time", time);
@@ -375,8 +372,8 @@ public class ChatActivity extends Activity {
         onResumeReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-            //processMessage(context, intent, "onpause");
-            System.out.println("Resume : " + intent.getStringExtra("message"));
+                processMessage(context, intent, "onresume");
+                //System.out.println("Resume : " + intent.getStringExtra("message"));
             }
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(onResumeReceiver, new IntentFilter("messageIntent"));
@@ -391,7 +388,8 @@ public class ChatActivity extends Activity {
         onPauseReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                System.out.println("Pause : " + intent.getStringExtra("message"));
+            processMessage(context, intent, "onpause");
+            //System.out.println("Pause : " + intent.getStringExtra("message"));
             }
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(onPauseReceiver, new IntentFilter("messageIntent"));
@@ -406,8 +404,8 @@ public class ChatActivity extends Activity {
         onStopReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                System.out.println("Stop : " + intent.getStringExtra("message"));
-
+            processMessage(context, intent, "onstop");
+            //System.out.println("Stop : " + intent.getStringExtra("message"));
             }
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(onStopReceiver, new IntentFilter("messageIntent"));

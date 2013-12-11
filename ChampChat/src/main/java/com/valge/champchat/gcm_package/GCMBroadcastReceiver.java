@@ -28,9 +28,26 @@ public class GCMBroadcastReceiver extends WakefulBroadcastReceiver{
 
             if(!extras.isEmpty()) {
                 if(GoogleCloudMessaging. MESSAGE_TYPE_MESSAGE.equals(messageType)) {
+                    System.out.println("Broadcast Receiver: Get data from GCM");
                     Intent localIntent = new Intent("messageIntent");
                     String message = intent.getStringExtra("message");
+                    String messageKey = intent.getStringExtra("key");
+                    String messageHash = intent.getStringExtra("hash");
+                    String senderId = intent.getStringExtra("whosent");
+
+                    //debug
+                    System.out.println("Broadcast Receiver: Data from GCM:");
+                    System.out.println("==================================");
+                    System.out.println("Message :" + message);
+                    System.out.println("Message Key :" + messageKey);
+                    System.out.println("Message Hash :" + messageHash);
+                    System.out.println("Who Sent :" + senderId);
+                    System.out.println("==================================");
+
                     localIntent.putExtra("message", message);
+                    localIntent.putExtra("messagekey", messageKey);
+                    localIntent.putExtra("messagehash", messageHash);
+                    localIntent.putExtra("senderid", senderId);
                     LocalBroadcastManager.getInstance(context).sendBroadcast(localIntent);
                 }
             }

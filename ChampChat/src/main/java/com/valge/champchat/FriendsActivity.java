@@ -378,6 +378,7 @@ public class FriendsActivity extends Activity {
             public void onItemClick(AdapterView<?> arg0, View arg1, int position, long id) {
                 // TODO Auto-generated method stub
                 Intent intent = new Intent(context, MessagingActivity.class);
+                intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_USER_ID, friendArrayList.get(position).id);
                 intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_NAME, friendArrayList.get(position).name);
                 intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_PHONENUMBER, friendArrayList.get(position).phoneNumber);
                 intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_GCMID, friendArrayList.get(position).gcmId);

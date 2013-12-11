@@ -183,6 +183,7 @@ public class DbAdapter {
     public Cursor getFriendInfo(int friendId) {
         openConnection();
         String[] columns = {DbHelper.COLUMN_FRIEND_NAME,
+                DbHelper.COLUMN_FRIEND_PHONE_NUMBER,
                 DbHelper.COLUMN_FRIEND_GCM_ID,
                 DbHelper.COLUMN_FRIEND_PUBLIC_KEY,};
         String[] selectionArg = {String.valueOf(friendId)};
@@ -199,7 +200,7 @@ public class DbAdapter {
     }
 
     //message
-    public boolean saveMessage(int friendId, String phoneNumber, String friendName, String message, String date, String time) {
+    public boolean saveMessage(int friendId, String phoneNumber, String friendName, String message, String date, String time, String status) {
         openConnection();
         ContentValues values = new ContentValues();
         values.put(DbHelper.COLUMN_MESSAGE_WITH_ID, friendId);
@@ -207,6 +208,7 @@ public class DbAdapter {
         //values.put(DbHelper.COLUMN_MESSAGE_WITH, DatabaseUtils.sqlEscapeString(phoneNumber));
         values.put(DbHelper.COLUMN_MESSAGE_FROM, friendName);
         values.put(DbHelper.COLUMN_MESSAGE, message);
+        values.put(DbHelper.COLUMN_MESSAGE_STATUS, status);
         //values.put(DbHelper.COLUMN_MESSAGE, DatabaseUtils.sqlEscapeString(message));
         values.put(DbHelper.COLUMN_MESSAGE_TIME_DATE, date);
         values.put(DbHelper.COLUMN_MESSAGE_TIME_TIMESTAMP, time);
@@ -316,6 +318,7 @@ public class DbAdapter {
         public static final String COLUMN_MESSAGE = "msgstring";
         public static final String COLUMN_MESSAGE_TIME_DATE = "msgtimedate";
         public static final String COLUMN_MESSAGE_TIME_TIMESTAMP = "msgtimestamp";
+        public static final String COLUMN_MESSAGE_STATUS = "msgstatus";
 
         //creating table
         public static final String TABLE_CREATE_USERDAT = "CREATE TABLE " + TABLE_USERDAT + " (" +
@@ -341,6 +344,7 @@ public class DbAdapter {
                 COLUMN_MESSAGE_WITH + " TEXT NOT NULL, " +
                 COLUMN_MESSAGE_FROM + " TEXT NOT NULL, " +
                 COLUMN_MESSAGE + " TEXT NOT NULL, " +
+                COLUMN_MESSAGE_STATUS + " TEXT, " +
                 COLUMN_MESSAGE_TIME_DATE + " TEXT NOT NULL, " +
                 COLUMN_MESSAGE_TIME_TIMESTAMP + " TEXT NOT NULL);";
 

@@ -96,18 +96,22 @@ public class ApplicationActivationActivity extends Activity {
                 // TODO Auto-generated method stub
                 Context context = getApplicationContext();
                 Intent intent = getIntent();
+                int userId = intent.getExtras().getInt(IntentExtrasUtil.XTRAS_ACTIV_USER_ID);
                 String userName = intent.getExtras().getString(IntentExtrasUtil.XTRAS_ACTIV_USERNAME);
                 String stringPrivateKey = intent.getExtras().getString(IntentExtrasUtil.XTRAS_ACTIV_PRIVATEKEY);
                 String regid = intent.getExtras().getString(IntentExtrasUtil.XTRAS_ACTIV_GCMID);
                 String phoneNumber = intent.getExtras().getString(IntentExtrasUtil.XTRAS_ACTIV_PHONENUMBER);
+                String secretKey = intent.getExtras().getString(IntentExtrasUtil.XTRAS_ACTIV_SECRET_KEY);
 
                 final SharedPreferences prefs = getAppPreferences(context);
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putBoolean(SharedPrefsUtil.KEY_APP_ACTIV, true);
+                editor.putInt(SharedPrefsUtil.KEY_USER_ID, userId);
                 editor.putString(SharedPrefsUtil.KEY_USER_NAME, userName);
                 editor.putString(SharedPrefsUtil.KEY_PRIVATE_KEY, stringPrivateKey);
                 editor.putString(SharedPrefsUtil.KEY_PHONE_NUMBER, phoneNumber);
                 editor.putString(SharedPrefsUtil.PROPERTY_REG_ID, regid);
+                editor.putString(SharedPrefsUtil.KEY_SECRET_KEY, secretKey);
                 editor.commit();
                 return "";
             }

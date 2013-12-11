@@ -57,6 +57,7 @@ public class UserDataRegistrationActivity extends Activity {
 
     //registration data
     private String action;
+    private int userId;
     private String userName;
     private String secretKey;
     private String phoneNumber;
@@ -185,10 +186,12 @@ public class UserDataRegistrationActivity extends Activity {
         String stringPrivateKey = Base64.encodeToString(privateKey.getEncoded(), Base64.DEFAULT);
 
         Intent intent = new Intent(UserDataRegistrationActivity.this, ApplicationActivationActivity.class);
+        intent.putExtra(IntentExtrasUtil.XTRAS_ACTIV_USER_ID, userId);
         intent.putExtra(IntentExtrasUtil.XTRAS_ACTIV_USERNAME, userName);
         intent.putExtra(IntentExtrasUtil.XTRAS_ACTIV_PRIVATEKEY, stringPrivateKey);
         intent.putExtra(IntentExtrasUtil.XTRAS_ACTIV_GCMID, regid);
         intent.putExtra(IntentExtrasUtil.XTRAS_ACTIV_PHONENUMBER, phoneNumber);
+        intent.putExtra(IntentExtrasUtil.XTRAS_ACTIV_SECRET_KEY, secretKey);
         startActivity(intent);
         UserDataRegistrationActivity.this.finish();
     }
@@ -243,7 +246,7 @@ public class UserDataRegistrationActivity extends Activity {
                     jsonResponse = httpPostModule.echatHttpPost(postAction, postData, postDataName);
                 }
                 catch(Exception e) {
-
+                    e.printStackTrace();
                 }
 
                 return "";
@@ -252,7 +255,7 @@ public class UserDataRegistrationActivity extends Activity {
             protected void onPostExecute(Object result) {
                 try {
                     if(jsonResponse.getString("message").equalsIgnoreCase("REG_SUCCESS")) {
-                        int userId = jsonResponse.getInt("userid");
+                        userId = jsonResponse.getInt("userid");
 
                         if(dbAdapter.registerUser(userId, phoneNumber, userName, regid, secretKey, privateKey.getEncoded())) {
                             activateApplication();
@@ -272,7 +275,6 @@ public class UserDataRegistrationActivity extends Activity {
                 catch(Exception e) {
                     e.printStackTrace();
                 }
-
             };
         }.execute(null, null, null);
     }
