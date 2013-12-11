@@ -252,7 +252,9 @@ public class UserDataRegistrationActivity extends Activity {
             protected void onPostExecute(Object result) {
                 try {
                     if(jsonResponse.getString("message").equalsIgnoreCase("REG_SUCCESS")) {
-                        if(dbAdapter.registerUser(phoneNumber, userName, regid, secretKey, privateKey.getEncoded())) {
+                        int userId = jsonResponse.getInt("userid");
+
+                        if(dbAdapter.registerUser(userId, phoneNumber, userName, regid, secretKey, privateKey.getEncoded())) {
                             activateApplication();
                         	/*Intent intent = new Intent(UserDataRegistration.this, MainActivity.class);
                         	startActivity(intent);

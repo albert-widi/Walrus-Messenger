@@ -35,8 +35,9 @@ public class EncryptionUtil {
 
         //check if message manipulated
         try {
+            byte[] originalMessageBytes = originalMessage.getBytes("UTF-8");
             MessageDigest digest = MessageDigest.getInstance("MD5");
-            digest.update(messageByte);
+            digest.update(originalMessageBytes);
             byte[] messageDigest = digest.digest();
 
             StringBuffer hexString = new StringBuffer();

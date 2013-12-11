@@ -3,7 +3,6 @@ package com.valge.champchat.util;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -39,12 +38,15 @@ public class DbAdapter {
         db.close();
     }
 
-    public boolean registerUser(String phoneNumber, String userName, String gcmId, String secretKey, byte[] privateKey) {
+    public boolean registerUser(int userId, String phoneNumber, String userName, String gcmId, String secretKey, byte[] privateKey) {
         openConnection();
         ContentValues values = new ContentValues();
-        values.put(DbHelper.COLUMN_USER_PHONE_NUMBER, DatabaseUtils.sqlEscapeString(phoneNumber));
+        values.put(DbHelper.COLUMN_USER_ID, userId);
         values.put(DbHelper.COLUMN_USER_NAME, userName);
-        values.put(DbHelper.COLUMN_USER_GCM_ID, DatabaseUtils.sqlEscapeString(gcmId));
+        values.put(DbHelper.COLUMN_USER_PHONE_NUMBER, phoneNumber);
+        values.put(DbHelper.COLUMN_USER_GCM_ID, gcmId);
+        //values.put(DbHelper.COLUMN_USER_PHONE_NUMBER, DatabaseUtils.sqlEscapeString(phoneNumber));
+        //values.put(DbHelper.COLUMN_USER_GCM_ID, DatabaseUtils.sqlEscapeString(gcmId));
         values.put(DbHelper.COLUMN_SECRET_PASS, secretKey);
         values.put(DbHelper.COLUMN_PRIVATE_KEY, privateKey);
 
@@ -64,12 +66,13 @@ public class DbAdapter {
         return;
     }
 
-    public boolean saveFriend(String name, String phoneNumber, String gcmId, byte[] publicKey) {
+    public boolean saveFriend(int friendId, String name, String phoneNumber, String gcmId, byte[] publicKey) {
         openConnection();
 
         //check if friend already exists
         String[] columns = {DbHelper.COLUMN_FRIEND_PHONE_NUMBER};
-        String[] selectionArg = {DatabaseUtils.sqlEscapeString(phoneNumber)};
+        String[] selectionArg = {phoneNumber};
+        //String[] selectionArg = {DatabaseUtils.sqlEscapeString(phoneNumber)};
         Cursor cursor = db.query(DbHelper.TABLE_FRIEND_LIST,
                 columns,
                 DbHelper.COLUMN_FRIEND_PHONE_NUMBER + " = ?",
@@ -78,7 +81,8 @@ public class DbAdapter {
         if(cursor.getCount() > 0) {
             ContentValues values = new ContentValues();
             values.put(DbHelper.COLUMN_FRIEND_NAME, name);
-            values.put(DbHelper.COLUMN_FRIEND_GCM_ID, DatabaseUtils.sqlEscapeString(gcmId));
+            values.put(DbHelper.COLUMN_FRIEND_GCM_ID, gcmId);
+            //values.put(DbHelper.COLUMN_FRIEND_GCM_ID, DatabaseUtils.sqlEscapeString(gcmId));
             values.put(DbHelper.COLUMN_FRIEND_PUBLIC_KEY, publicKey);
 
             long id = db.update(DbHelper.TABLE_FRIEND_LIST,
@@ -94,9 +98,12 @@ public class DbAdapter {
         }
         else {
             ContentValues values = new ContentValues();
+            values.put(DbHelper.COLUMN_FRIEND_ID, friendId);
             values.put(DbHelper.COLUMN_FRIEND_NAME, name);
-            values.put(DbHelper.COLUMN_FRIEND_PHONE_NUMBER, DatabaseUtils.sqlEscapeString(phoneNumber));
-            values.put(DbHelper.COLUMN_FRIEND_GCM_ID, DatabaseUtils.sqlEscapeString(gcmId));
+            values.put(DbHelper.COLUMN_FRIEND_PHONE_NUMBER, phoneNumber);
+            values.put(DbHelper.COLUMN_FRIEND_GCM_ID, gcmId);
+            //values.put(DbHelper.COLUMN_FRIEND_PHONE_NUMBER, DatabaseUtils.sqlEscapeString(phoneNumber));
+            //values.put(DbHelper.COLUMN_FRIEND_GCM_ID, DatabaseUtils.sqlEscapeString(gcmId));
             values.put(DbHelper.COLUMN_FRIEND_PUBLIC_KEY, publicKey);
 
             long id = db.insert(DbHelper.TABLE_FRIEND_LIST, null, values);
@@ -115,9 +122,11 @@ public class DbAdapter {
     public boolean updateFriend(String name, String phoneNumber, String gcmId, byte[] publicKey) {
         openConnection();
         ContentValues values = new ContentValues();
-        String[] selectionArg = {DatabaseUtils.sqlEscapeString(phoneNumber)};
+        String[] selectionArg = {phoneNumber};
+        //String[] selectionArg = {DatabaseUtils.sqlEscapeString(phoneNumber)};
         values.put(DbHelper.COLUMN_FRIEND_NAME, name);
-        values.put(DbHelper.COLUMN_FRIEND_GCM_ID, DatabaseUtils.sqlEscapeString(gcmId));
+        values.put(DbHelper.COLUMN_FRIEND_GCM_ID, gcmId);
+        //values.put(DbHelper.COLUMN_FRIEND_GCM_ID, DatabaseUtils.sqlEscapeString(gcmId));
         values.put(DbHelper.COLUMN_FRIEND_PUBLIC_KEY, publicKey);
 
         long id = db.update(DbHelper.TABLE_FRIEND_LIST,
@@ -146,17 +155,24 @@ public class DbAdapter {
         String[] columns = {DbHelper.COLUMN_FRIEND_NAME,
                 DbHelper.COLUMN_FRIEND_GCM_ID,
                 DbHelper.COLUMN_FRIEND_PUBLIC_KEY,};
-        String[] selectionArg = {DatabaseUtils.sqlEscapeString(filter)};
+        String[] selectionArg = {filter};
+        //String[] selectionArg = {DatabaseUtils.sqlEscapeString(filter)};
 
         Cursor cursor;
         if(filterSelection.equalsIgnoreCase("phonenumber")) {
+            cursor = db.query(DbHelper.TABLE_FRIEND_LIST,
+                    columns,
+                    DbHelper.COLUMN_FRIEND_PHONE_NUMBER + " = ?",
+                    selectionArg, null, null, DbHelper.COLUMN_ID);
+        }
+        else if(filterSelection.equalsIgnoreCase("friendid")) {
             cursor = db.query(DbHelper.TABLE_MESSAGE_HISTORY,
                     columns,
-                    DbHelper.COLUMN_MESSAGE_WITH + " = ?",
+                    DbHelper.COLUMN_FRIEND_ID + " = ?",
                     selectionArg, null, null, DbHelper.COLUMN_ID);
         }
         else {
-            cursor = db.query(DbHelper.TABLE_MESSAGE_HISTORY,
+            cursor = db.query(DbHelper.TABLE_FRIEND_LIST,
                     columns,
                     DbHelper.COLUMN_FRIEND_GCM_ID + " = ?",
                     selectionArg, null, null, DbHelper.COLUMN_ID);
@@ -164,13 +180,34 @@ public class DbAdapter {
         return cursor;
     }
 
+    public Cursor getFriendInfo(int friendId) {
+        openConnection();
+        String[] columns = {DbHelper.COLUMN_FRIEND_NAME,
+                DbHelper.COLUMN_FRIEND_GCM_ID,
+                DbHelper.COLUMN_FRIEND_PUBLIC_KEY,};
+        String[] selectionArg = {String.valueOf(friendId)};
+        //String[] selectionArg = {DatabaseUtils.sqlEscapeString(filter)};
+
+        Cursor cursor;
+        cursor = db.query(DbHelper.TABLE_MESSAGE_HISTORY,
+                columns,
+                DbHelper.COLUMN_FRIEND_ID + " = ?",
+                selectionArg, null, null, DbHelper.COLUMN_ID);
+
+
+        return cursor;
+    }
+
     //message
-    public boolean saveMessage(String phoneNumber, String friendName, String message, String date, String time) {
+    public boolean saveMessage(int friendId, String phoneNumber, String friendName, String message, String date, String time) {
         openConnection();
         ContentValues values = new ContentValues();
-        values.put(DbHelper.COLUMN_MESSAGE_WITH, DatabaseUtils.sqlEscapeString(phoneNumber));
+        values.put(DbHelper.COLUMN_MESSAGE_WITH_ID, friendId);
+        values.put(DbHelper.COLUMN_MESSAGE_WITH, phoneNumber);
+        //values.put(DbHelper.COLUMN_MESSAGE_WITH, DatabaseUtils.sqlEscapeString(phoneNumber));
         values.put(DbHelper.COLUMN_MESSAGE_FROM, friendName);
-        values.put(DbHelper.COLUMN_MESSAGE, DatabaseUtils.sqlEscapeString(message));
+        values.put(DbHelper.COLUMN_MESSAGE, message);
+        //values.put(DbHelper.COLUMN_MESSAGE, DatabaseUtils.sqlEscapeString(message));
         values.put(DbHelper.COLUMN_MESSAGE_TIME_DATE, date);
         values.put(DbHelper.COLUMN_MESSAGE_TIME_TIMESTAMP, time);
         long id = db.insert(DbHelper.TABLE_FRIEND_LIST, null, values);
@@ -258,6 +295,7 @@ public class DbAdapter {
         public static final String COLUMN_ID = "_id";
         //table user data
         public static final String TABLE_USERDAT = "userdat";
+        public static final String COLUMN_USER_ID = "userid";
         public static final String COLUMN_USER_PHONE_NUMBER = "userphonenum";
         public static final String COLUMN_USER_NAME = "username";
         public static final String COLUMN_USER_GCM_ID = "usergcmid";
@@ -265,12 +303,14 @@ public class DbAdapter {
         public static final String COLUMN_PRIVATE_KEY = "privatekey";
         //table friend list
         public static final String TABLE_FRIEND_LIST = "friendlist";
+        public static final String COLUMN_FRIEND_ID = "friendid";
         public static final String COLUMN_FRIEND_NAME = "friendname";
         public static final String COLUMN_FRIEND_PHONE_NUMBER = "fphonenum";
         public static final String COLUMN_FRIEND_GCM_ID = "fgcmid";
         public static final String COLUMN_FRIEND_PUBLIC_KEY = "fpublic";
         //table message history
         public static final String TABLE_MESSAGE_HISTORY = "msghistory";
+        public static final String COLUMN_MESSAGE_WITH_ID = "chatwithid";
         public static final String COLUMN_MESSAGE_WITH = "chatwith";
         public static final String COLUMN_MESSAGE_FROM = "msgfrom";
         public static final String COLUMN_MESSAGE = "msgstring";
@@ -280,7 +320,8 @@ public class DbAdapter {
         //creating table
         public static final String TABLE_CREATE_USERDAT = "CREATE TABLE " + TABLE_USERDAT + " (" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_USER_PHONE_NUMBER + " NUMBER NOT NULL, " +
+                COLUMN_USER_ID + " NUMBER NOT NULL, " +
+                COLUMN_USER_PHONE_NUMBER + " TEXT NOT NULL, " +
                 COLUMN_USER_NAME + " TEXT NOT NULL, " +
                 COLUMN_USER_GCM_ID + " TEXT NOT NULL, " +
                 COLUMN_SECRET_PASS + " TEXT NOT NULL, " +
@@ -288,13 +329,15 @@ public class DbAdapter {
 
         public static final String TABLE_CREATE_FRIEND_LIST = "CREATE TABLE " + TABLE_FRIEND_LIST + " (" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_FRIEND_PHONE_NUMBER + " NUMBER NOT NULL, " +
+                COLUMN_FRIEND_ID + " NUMBER NOT NULL, " +
+                COLUMN_FRIEND_PHONE_NUMBER + " TEXT NOT NULL, " +
                 COLUMN_FRIEND_NAME + " TEXT NOT NULL, " +
                 COLUMN_FRIEND_GCM_ID + " TEXT NOT NULL, " +
                 COLUMN_FRIEND_PUBLIC_KEY + " BLOB NOT NULL);";
 
         public static final String TABLE_CREATE_MESSAEG_HISTORY = "CREATE TABLE " + TABLE_MESSAGE_HISTORY + " (" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_MESSAGE_WITH_ID + " NUMBER NOT NULL, " +
                 COLUMN_MESSAGE_WITH + " TEXT NOT NULL, " +
                 COLUMN_MESSAGE_FROM + " TEXT NOT NULL, " +
                 COLUMN_MESSAGE + " TEXT NOT NULL, " +

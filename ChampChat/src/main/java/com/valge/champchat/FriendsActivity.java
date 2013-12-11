@@ -231,11 +231,12 @@ public class FriendsActivity extends Activity {
                     String nonSplitedData = jsonResponse.get(key).toString();
                     String[] splitedData = nonSplitedData.split(";");
 
-                    String name = splitedData[0];
+                    int id = Integer.parseInt(splitedData[0]);
+                    String name = splitedData[1];
                     String phoneNumber = key;
-                    String gcmId = splitedData[1];
+                    String gcmId = splitedData[2];
 
-                    byte[] decodedKey = Base64.decode(splitedData[2], Base64.DEFAULT);
+                    byte[] decodedKey = Base64.decode(splitedData[3], Base64.DEFAULT);
                     //PublicKey tmpPublicKey = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(decodedKey));
 
                     //-------------------------------------- PARTIAL LIST VIEW UPDATE ----------------------------------------------------------
@@ -286,7 +287,7 @@ public class FriendsActivity extends Activity {
 
                     if(!friendExists) {
                         System.out.println("Refresh friend list: Add new friend");
-                        Friend friend = new Friend(name, phoneNumber, gcmId, decodedKey);
+                        Friend friend = new Friend(id, name, phoneNumber, gcmId, decodedKey);
                         friendArrayList.add(friend);
 
                         runOnUiThread(new Runnable() {
@@ -299,7 +300,7 @@ public class FriendsActivity extends Activity {
                         });
 
                         //saving friend to db
-                        if(!dbAdapter.saveFriend(name, phoneNumber, gcmId, decodedKey)) {
+                        if(!dbAdapter.saveFriend(id, name, phoneNumber, gcmId, decodedKey)) {
                             System.out.println("Refresh friend list: Save friend to db failed, name :" + name);
                         }
                         else {
@@ -331,15 +332,16 @@ public class FriendsActivity extends Activity {
                 haveFriends = true;
                 if(cursor.moveToFirst()) {
                     do {
+                        int id = cursor.getInt(cursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_ID));
                         String name = cursor.getString(cursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_NAME));
                         System.out.println("Name : " + name);
                         String phoneNumber = cursor.getString(cursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PHONE_NUMBER));
-                        phoneNumber = dbAdapter.unescapeSqlString(phoneNumber);
+                        //phoneNumber = dbAdapter.unescapeSqlString(phoneNumber);
                         String gcmId = cursor.getString(cursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_GCM_ID));
-                        gcmId = dbAdapter.unescapeSqlString(gcmId);
+                        //gcmId = dbAdapter.unescapeSqlString(gcmId);
                         byte[] key = cursor.getBlob(cursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
 
-                        Friend friend = new Friend(name, phoneNumber, gcmId, key);
+                        Friend friend = new Friend(id, name, phoneNumber, gcmId, key);
                         friendArrayList.add(friend);
                     }while(cursor.moveToNext());
                 }

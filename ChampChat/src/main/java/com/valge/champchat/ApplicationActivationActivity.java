@@ -208,10 +208,11 @@ public class ApplicationActivationActivity extends Activity {
                                 String nonSplitedData = jsonResponse.get(key).toString();
                                 String[] splitedData = nonSplitedData.split(";");
 
-                                String name = splitedData[0];
+                                int id = Integer.parseInt(splitedData[0]);
+                                String name = splitedData[1];
                                 String phoneNumber = key;
-                                String gcmId = splitedData[1];
-                                byte[] decodedKey = Base64.decode(splitedData[2], Base64.DEFAULT);
+                                String gcmId = splitedData[2];
+                                byte[] decodedKey = Base64.decode(splitedData[3], Base64.DEFAULT);
                                 PublicKey tmpPublicKey = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(decodedKey));
 
                                 //debug
@@ -220,7 +221,7 @@ public class ApplicationActivationActivity extends Activity {
                                 System.out.println("eChat Application Activity: GCM ID = " + gcmId);
 
                                 //saving friend to db
-                                if(!dbAdapter.saveFriend(name, phoneNumber, gcmId, decodedKey)) {
+                                if(!dbAdapter.saveFriend(id, name, phoneNumber, gcmId, decodedKey)) {
                                     System.out.println("Save friend to db failed, name :" + name);
                                 }
                                 else {

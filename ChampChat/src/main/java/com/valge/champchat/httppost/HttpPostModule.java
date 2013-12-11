@@ -56,6 +56,7 @@ public class HttpPostModule {
                 HttpEntity resEntity = response.getEntity();
 
                 String stringResponse = EntityUtils.toString(resEntity);
+                System.out.println("String response :" + stringResponse);
                 jsonResponse = new JSONObject(stringResponse);
                 System.out.println("JSON : " + jsonResponse.toString());
 

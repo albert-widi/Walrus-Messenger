@@ -159,6 +159,7 @@ public class ChatActivity extends Activity {
         new AsyncTask() {
             int position;
 
+            int friendId;
             String phoneNumber;
             String friendName;
             String friendGcmId;
@@ -170,26 +171,27 @@ public class ChatActivity extends Activity {
                 if(friendMessageCursor.getCount() > 0) {
                     while(friendMessageCursor.moveToNext()) {
                         phoneNumber = friendMessageCursor.getString(friendMessageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_WITH));
-                        phoneNumber = dbAdapter.unescapeSqlString(phoneNumber);
+                        //phoneNumber = dbAdapter.unescapeSqlString(phoneNumber);
                         Cursor friendDataCursor = dbAdapter.getFriendInfo(phoneNumber, "phonenumber");
 
                         if(friendDataCursor.getCount() > 0) {
                             friendDataCursor.moveToFirst();
+                            friendId = friendDataCursor.getInt(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_ID));
                             friendName = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_NAME));
                             friendGcmId = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_GCM_ID));
-                            friendGcmId = dbAdapter.unescapeSqlString(friendGcmId);
+                            //friendGcmId = dbAdapter.unescapeSqlString(friendGcmId);
                             friendPublicKey = friendDataCursor.getBlob(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
                         }
                         friendDataCursor.close();
 
-                        FriendMessage friendMessage = new FriendMessage(friendName, phoneNumber, friendGcmId, friendPublicKey);
+                        FriendMessage friendMessage = new FriendMessage(friendId, friendName, phoneNumber, friendGcmId, friendPublicKey);
 
                         Cursor messageCursor = dbAdapter.getFriendLastMessage(phoneNumber);
 
                         if(messageCursor.getCount() > 0) {
                             messageCursor.moveToFirst();
                             String lastMessage = messageCursor.getString(messageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE));
-                            lastMessage = dbAdapter.unescapeSqlString(lastMessage);
+                            //lastMessage = dbAdapter.unescapeSqlString(lastMessage);
                             String messageDate = messageCursor.getString(messageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_TIME_DATE));
                             String messageTime = messageCursor.getString(messageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_TIME_TIMESTAMP));
 
@@ -247,8 +249,20 @@ public class ChatActivity extends Activity {
                 String message = intent.getStringExtra("message");
                 String messageKey = intent.getStringExtra("messageKey");
                 String messageHash = intent.getStringExtra("messageHash");
+                int friendId = intent.getIntExtra("friendId", 0);
                 String phoneNumber = intent.getStringExtra("phoneNumber");
                 String name = intent.getStringExtra("name");
+
+                //debug
+                System.out.println("Process Message : Intent extra debug");
+                System.out.println("=====================================");
+                System.out.println("Message:" + message);
+                System.out.println("Message Key:" + messageKey);
+                System.out.println("Message Hash:" + messageHash);
+                System.out.println("Friend ID:" + friendId);
+                System.out.println("Friend Phone:" + phoneNumber);
+                System.out.println("Friend Name:" + name);
+                System.out.println("=====================================");
 
                 //date-time
                 String date = gCalendar.get(Calendar.DATE) + "-" + gCalendar.get(Calendar.MONTH) + "-" + gCalendar.get(Calendar.YEAR) + " /";
@@ -268,7 +282,7 @@ public class ChatActivity extends Activity {
                     int messageListLength = messageArrayList.size();
                     int friendNumber = 0;
                     for(int i = 0; i < messageListLength; i++) {
-                        if(messageArrayList.get(i).phoneNumber.equalsIgnoreCase(phoneNumber)) {
+                        if(messageArrayList.get(i).id == friendId) {
                             friendExists = true;
                             friendNumber = i;
                             break;
@@ -277,16 +291,16 @@ public class ChatActivity extends Activity {
 
                     if(!friendExists) {
                         System.out.println("Processing on resume message : friend not exists");
-                        Cursor friendDataCursor = dbAdapter.getFriendInfo(phoneNumber, "phonenumber");
+                        Cursor friendDataCursor = dbAdapter.getFriendInfo(friendId);
 
                         if(friendDataCursor.getCount() > 0) {
                             friendDataCursor.moveToFirst();
                             friendName = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_NAME));
                             friendGcmId = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_GCM_ID));
-                            friendGcmId = dbAdapter.unescapeSqlString(friendGcmId);
+                            //friendGcmId = dbAdapter.unescapeSqlString(friendGcmId);
                             friendPublicKey = friendDataCursor.getBlob(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
                             //friendPublicKey = Base64.decode(friendPublicKeyString, Base64.DEFAULT);
-                            FriendMessage friendMessage = new FriendMessage(friendName, phoneNumber, friendGcmId, friendPublicKey);
+                            FriendMessage friendMessage = new FriendMessage(friendId, friendName, phoneNumber, friendGcmId, friendPublicKey);
                             friendMessage.lastMessage = originalMessage;
                             friendMessage.lastMessageDate = date;
                             friendMessage.lastMessageTime = time;
@@ -294,7 +308,7 @@ public class ChatActivity extends Activity {
                             //save message to db
                             messageArrayList.add(friendMessage);
                             friendDataCursor.close();
-                            if(dbAdapter.saveMessage(phoneNumber, friendName, originalMessage, date, time)) {
+                            if(dbAdapter.saveMessage(friendId, phoneNumber, friendName, originalMessage, date, time)) {
                                 System.out.println("Processing on resume message : Save message success");
                             }
                             else {
