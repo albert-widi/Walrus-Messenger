@@ -36,7 +36,9 @@ public class FriendMessageListAdapter extends ArrayAdapter {
 		TextView lastMessageTimeTextView = (TextView) rowView.findViewById(R.id.adapter_message_last_message_time);
 		
 		nameTextView.setText(friend.get(position).name);
-		
+        lastMessageTextView.setText(friend.get(position).lastMessage);
+        lastMessageDateTextView.setText(friend.get(position).lastMessageDate);
+        lastMessageTimeTextView.setText(friend.get(position).lastMessageTime);
 		return rowView;
 	}
 }

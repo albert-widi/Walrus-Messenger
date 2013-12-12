@@ -6,7 +6,7 @@ import android.util.Base64;
 
 import java.security.KeyFactory;
 import java.security.PrivateKey;
-import java.security.spec.X509EncodedKeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
 
 public class SharedPrefsUtil {
 	//prefs
@@ -55,7 +55,8 @@ public class SharedPrefsUtil {
         byte[] privateKey = Base64.decode(sprefs.getString(SharedPrefsUtil.KEY_PRIVATE_KEY, ""), Base64.DEFAULT);
         PrivateKey userPrivateKey = null;
         try{
-            userPrivateKey = KeyFactory.getInstance("RSA").generatePrivate(new X509EncodedKeySpec(privateKey));
+            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(privateKey);
+            return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
         }
         catch(Exception e) {
             e.printStackTrace();

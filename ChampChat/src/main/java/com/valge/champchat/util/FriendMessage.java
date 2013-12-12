@@ -9,7 +9,7 @@ public class FriendMessage extends Friend{
     public String lastMessageDate;
     public String lastMessageTime;
 
-    public FriendMessage(int id, String name, String phoneNumber, String gcmId, byte[] publicKey) {
-        super(id, name, phoneNumber, gcmId, publicKey);
+    public FriendMessage(int id, String name, String phoneNumber, byte[] publicKey) {
+        super(id, name, phoneNumber, publicKey);
     }
 }

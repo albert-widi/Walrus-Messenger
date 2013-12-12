@@ -190,7 +190,7 @@ public class DbAdapter {
         //String[] selectionArg = {DatabaseUtils.sqlEscapeString(filter)};
 
         Cursor cursor;
-        cursor = db.query(DbHelper.TABLE_MESSAGE_HISTORY,
+        cursor = db.query(DbHelper.TABLE_FRIEND_LIST,
                 columns,
                 DbHelper.COLUMN_FRIEND_ID + " = ?",
                 selectionArg, null, null, DbHelper.COLUMN_ID);
@@ -200,24 +200,40 @@ public class DbAdapter {
     }
 
     //message
-    public boolean saveMessage(int friendId, String phoneNumber, String friendName, String message, String date, String time, String status) {
+    public long saveMessage(int friendId, String phoneNumber, String friendName, String message, String date, String time, String status, String mode) {
         openConnection();
         ContentValues values = new ContentValues();
         values.put(DbHelper.COLUMN_MESSAGE_WITH_ID, friendId);
         values.put(DbHelper.COLUMN_MESSAGE_WITH, phoneNumber);
-        //values.put(DbHelper.COLUMN_MESSAGE_WITH, DatabaseUtils.sqlEscapeString(phoneNumber));
         values.put(DbHelper.COLUMN_MESSAGE_FROM, friendName);
         values.put(DbHelper.COLUMN_MESSAGE, message);
         values.put(DbHelper.COLUMN_MESSAGE_STATUS, status);
-        //values.put(DbHelper.COLUMN_MESSAGE, DatabaseUtils.sqlEscapeString(message));
         values.put(DbHelper.COLUMN_MESSAGE_TIME_DATE, date);
-        values.put(DbHelper.COLUMN_MESSAGE_TIME_TIMESTAMP, time);
-        long id = db.insert(DbHelper.TABLE_FRIEND_LIST, null, values);
+        values.put(DbHelper.COLUMN_MESSAGE_TIME_TIME, time);
+        values.put(DbHelper.COLUMN_MESSAGE_MODE, mode);
+        long id = db.insert(DbHelper.TABLE_MESSAGE_HISTORY, null, values);
         closeConnection();
 
+        return id;
+    }
+
+    public boolean updateMessage(long insertId, String status) {
+        openConnection();
+        ContentValues values = new ContentValues();
+        String[] selectionArg = {String.valueOf(insertId)};
+
+        values.put(DbHelper.COLUMN_MESSAGE_STATUS, status);
+
+        long id = db.update(DbHelper.TABLE_MESSAGE_HISTORY,
+                values,
+                DbHelper.COLUMN_ID + " = ?",
+                selectionArg);
+
         if(id == -1) {
+            closeConnection();
             return false;
         }
+        closeConnection();
         return true;
     }
 
@@ -225,7 +241,9 @@ public class DbAdapter {
         openConnection();
         String[] columns = {DbHelper.COLUMN_MESSAGE,
                 DbHelper.COLUMN_MESSAGE_FROM,
+                DbHelper.COLUMN_MESSAGE_WITH_ID,
                 DbHelper.COLUMN_MESSAGE_TIME_DATE,
+                DbHelper.COLUMN_MESSAGE_TIME_TIME,
                 DbHelper.COLUMN_MESSAGE_TIME_TIMESTAMP};
 
         String query = "SELECT * FROM " + DbHelper.TABLE_MESSAGE_HISTORY;
@@ -236,7 +254,7 @@ public class DbAdapter {
 
     public Cursor getWhoMessage() {
         openConnection();
-        String[] columns = {DbHelper.COLUMN_MESSAGE_WITH};
+        String[] columns = {DbHelper.COLUMN_MESSAGE_WITH_ID};
 
         Cursor cursor = db.query(DbHelper.TABLE_MESSAGE_HISTORY,
                 columns,
@@ -247,34 +265,38 @@ public class DbAdapter {
         return cursor;
     }
 
-    public Cursor getMessage(String phoneNumber) {
+    public Cursor getMessage(String friendId) {
         openConnection();
         String[] columns = {DbHelper.COLUMN_MESSAGE,
                 DbHelper.COLUMN_MESSAGE_FROM,
+                DbHelper.COLUMN_MESSAGE_STATUS,
+                DbHelper.COLUMN_MESSAGE_MODE,
                 DbHelper.COLUMN_MESSAGE_TIME_DATE,
+                DbHelper.COLUMN_MESSAGE_TIME_TIME,
                 DbHelper.COLUMN_MESSAGE_TIME_TIMESTAMP};
-        String[] selectionArg = {phoneNumber};
+        String[] selectionArg = {friendId};
 
         Cursor cursor = db.query(DbHelper.TABLE_MESSAGE_HISTORY,
                 columns,
-                DbHelper.COLUMN_MESSAGE_WITH + " = ?",
+                DbHelper.COLUMN_MESSAGE_WITH_ID + " = ?",
                 selectionArg, null, null, DbHelper.COLUMN_ID);
 
         return cursor;
     }
 
-    public Cursor getFriendLastMessage(String phoneNumber) {
+    public Cursor getFriendLastMessage(String friendId) {
         openConnection();
         String[] columns = {DbHelper.COLUMN_MESSAGE,
                 DbHelper.COLUMN_MESSAGE_FROM,
                 DbHelper.COLUMN_MESSAGE_TIME_DATE,
+                DbHelper.COLUMN_MESSAGE_TIME_TIME,
                 DbHelper.COLUMN_MESSAGE_TIME_TIMESTAMP};
 
-        String[] selectionArg = {phoneNumber};
+        String[] selectionArg = {friendId};
 
         Cursor cursor = db.query(DbHelper.TABLE_MESSAGE_HISTORY,
                 columns,
-                DbHelper.COLUMN_MESSAGE_WITH + " = ?",
+                DbHelper.COLUMN_MESSAGE_WITH_ID + " = ?",
                 selectionArg, null, null, DbHelper.COLUMN_ID + " DESC", "1");
 
         return cursor;
@@ -316,7 +338,9 @@ public class DbAdapter {
         public static final String COLUMN_MESSAGE_WITH = "chatwith";
         public static final String COLUMN_MESSAGE_FROM = "msgfrom";
         public static final String COLUMN_MESSAGE = "msgstring";
+        public static final String COLUMN_MESSAGE_MODE = "msgmode";
         public static final String COLUMN_MESSAGE_TIME_DATE = "msgtimedate";
+        public static final String COLUMN_MESSAGE_TIME_TIME = "msgtimetime";
         public static final String COLUMN_MESSAGE_TIME_TIMESTAMP = "msgtimestamp";
         public static final String COLUMN_MESSAGE_STATUS = "msgstatus";
 
@@ -338,15 +362,17 @@ public class DbAdapter {
                 COLUMN_FRIEND_GCM_ID + " TEXT NOT NULL, " +
                 COLUMN_FRIEND_PUBLIC_KEY + " BLOB NOT NULL);";
 
-        public static final String TABLE_CREATE_MESSAEG_HISTORY = "CREATE TABLE " + TABLE_MESSAGE_HISTORY + " (" +
+        public static final String TABLE_CREATE_MESSAGE_HISTORY = "CREATE TABLE " + TABLE_MESSAGE_HISTORY + " (" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_MESSAGE_WITH_ID + " NUMBER NOT NULL, " +
                 COLUMN_MESSAGE_WITH + " TEXT NOT NULL, " +
                 COLUMN_MESSAGE_FROM + " TEXT NOT NULL, " +
                 COLUMN_MESSAGE + " TEXT NOT NULL, " +
                 COLUMN_MESSAGE_STATUS + " TEXT, " +
+                COLUMN_MESSAGE_MODE + " NUMBER NOT NULL, " +
                 COLUMN_MESSAGE_TIME_DATE + " TEXT NOT NULL, " +
-                COLUMN_MESSAGE_TIME_TIMESTAMP + " TEXT NOT NULL);";
+                COLUMN_MESSAGE_TIME_TIME + " TEXT NOT NULL, " +
+                COLUMN_MESSAGE_TIME_TIMESTAMP + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);";
 
 
         public DbHelper(Context context) {
@@ -360,7 +386,7 @@ public class DbAdapter {
             try {
                 sqLiteDatabase.execSQL(TABLE_CREATE_USERDAT);
                 sqLiteDatabase.execSQL(TABLE_CREATE_FRIEND_LIST);
-                sqLiteDatabase.execSQL(TABLE_CREATE_MESSAEG_HISTORY);
+                sqLiteDatabase.execSQL(TABLE_CREATE_MESSAGE_HISTORY);
             }
             catch (Exception e) {
                 e.printStackTrace();

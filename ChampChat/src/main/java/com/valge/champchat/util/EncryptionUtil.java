@@ -117,8 +117,11 @@ public class EncryptionUtil {
                 hexString.append(h);
             }
             String fixHexString = hexString.toString();
+            System.out.println("Orinal Hash : " + messageHash);
+            System.out.println("Current Hash : " + fixHexString);
 
-            if(fixHexString == messageHash) {
+            //return originalMessage;
+            if(fixHexString.equals(messageHash)) {
                 return originalMessage;
             }
             else {

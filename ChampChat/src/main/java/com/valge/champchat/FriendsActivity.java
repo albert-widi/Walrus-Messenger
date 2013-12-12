@@ -248,12 +248,6 @@ public class FriendsActivity extends Activity {
                         if(friendArrayList.get(i).phoneNumber.equalsIgnoreCase(phoneNumber)) {
                             System.out.println("Refresh friend list: Friend exists in database");
                             //debug
-                            if(friendArrayList.get(i).gcmId.equalsIgnoreCase(gcmId)) {
-                                System.out.println("Refresh friend list: GCM match");
-                            }
-                            else {
-                                System.out.println("Refresh friend list: GCM not match");
-                            }
                             if(Arrays.equals(friendArrayList.get(i).publicKey, decodedKey)) {
                                 System.out.println("Refresh friend list: PublicKey match");
                             }
@@ -262,7 +256,7 @@ public class FriendsActivity extends Activity {
                             }
 
                             //friend already exists
-                            if(friendArrayList.get(i).gcmId.equalsIgnoreCase(gcmId) && Arrays.equals(friendArrayList.get(i).publicKey, decodedKey)) {
+                            if(Arrays.equals(friendArrayList.get(i).publicKey, decodedKey)) {
                                 System.out.println("Refresh friend list: Friend need no update");
                                 friendExists = true;
                             }
@@ -271,7 +265,6 @@ public class FriendsActivity extends Activity {
                                 System.out.println("Refresh friend list: Friend need update");
                                 friendNeedUpdate = true;
                                 friendArrayList.get(i).name = name;
-                                friendArrayList.get(i).gcmId = gcmId;
                                 friendArrayList.get(i).publicKey = decodedKey;
 
                                 if(dbAdapter.updateFriend(name, phoneNumber, gcmId, decodedKey)) {
@@ -287,7 +280,7 @@ public class FriendsActivity extends Activity {
 
                     if(!friendExists) {
                         System.out.println("Refresh friend list: Add new friend");
-                        Friend friend = new Friend(id, name, phoneNumber, gcmId, decodedKey);
+                        Friend friend = new Friend(id, name, phoneNumber, decodedKey);
                         friendArrayList.add(friend);
 
                         runOnUiThread(new Runnable() {
@@ -341,7 +334,7 @@ public class FriendsActivity extends Activity {
                         //gcmId = dbAdapter.unescapeSqlString(gcmId);
                         byte[] key = cursor.getBlob(cursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
 
-                        Friend friend = new Friend(id, name, phoneNumber, gcmId, key);
+                        Friend friend = new Friend(id, name, phoneNumber, key);
                         friendArrayList.add(friend);
                     }while(cursor.moveToNext());
                 }
@@ -381,11 +374,7 @@ public class FriendsActivity extends Activity {
                 intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_USER_ID, friendArrayList.get(position).id);
                 intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_NAME, friendArrayList.get(position).name);
                 intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_PHONENUMBER, friendArrayList.get(position).phoneNumber);
-                intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_GCMID, friendArrayList.get(position).gcmId);
                 intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_PUBLICKEY, friendArrayList.get(position).publicKey);
-                intent.putExtra(IntentExtrasUtil.XTRAS_USER_NAME, userName);
-                intent.putExtra(IntentExtrasUtil.XTRAS_USER_PRIVATE_KEY, privateKey);
-
                 startActivity(intent);
             }
 

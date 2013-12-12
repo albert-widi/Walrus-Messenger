@@ -1,13 +1,20 @@
 package com.valge.champchat;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,6 +30,7 @@ import com.valge.champchat.gcm_package.GCMBroadcastReceiver;
 import com.valge.champchat.httppost.HttpPostModule;
 import com.valge.champchat.list_view_adapter.MessagingAdapter;
 import com.valge.champchat.util.ActivityLocationSharedPrefs;
+import com.valge.champchat.util.DbAdapter;
 import com.valge.champchat.util.EncryptionUtil;
 import com.valge.champchat.util.IntentExtrasUtil;
 import com.valge.champchat.util.Message;
@@ -85,12 +93,16 @@ public class MessagingActivity extends Activity {
         context = getApplicationContext();
         gCalendar = new GregorianCalendar();
 
-        Intent intent = getIntent();
-        friendId = intent.getExtras().getInt(IntentExtrasUtil.XTRAS_FRIEND_USER_ID);
-        friendName = intent.getExtras().getString(IntentExtrasUtil.XTRAS_FRIEND_NAME);
-        friendPhoneNumber = intent.getExtras().getString(IntentExtrasUtil.XTRAS_FRIEND_PHONENUMBER);
-        friendGcmId = intent.getExtras().getString(IntentExtrasUtil.XTRAS_FRIEND_GCMID);
-        friendPublicKey = intent.getExtras().getByteArray(IntentExtrasUtil.XTRAS_FRIEND_PUBLICKEY);
+        if(getIntent().getExtras() != null) {
+            Intent intent = getIntent();
+            friendId = intent.getExtras().getInt(IntentExtrasUtil.XTRAS_FRIEND_USER_ID);
+            friendName = intent.getExtras().getString(IntentExtrasUtil.XTRAS_FRIEND_NAME);
+            friendPhoneNumber = intent.getExtras().getString(IntentExtrasUtil.XTRAS_FRIEND_PHONENUMBER);
+            friendPublicKey = intent.getExtras().getByteArray(IntentExtrasUtil.XTRAS_FRIEND_PUBLICKEY);
+        }
+        else {
+            loadFriendData();
+        }
 
         SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(context);
         sharedPrefsUtil.loadApplicationPrefs();
@@ -98,6 +110,10 @@ public class MessagingActivity extends Activity {
         userId = sharedPrefsUtil.userId;
 
         this.setTitle(friendName);
+    }
+
+    public void loadFriendData() {
+
     }
 
 
@@ -157,6 +173,7 @@ public class MessagingActivity extends Activity {
             }
         });
 
+        //load message from db
         loadChatContent();
     }
 
@@ -169,7 +186,7 @@ public class MessagingActivity extends Activity {
         String date = getCurrentDate();
         String time = getCurrentTime();
 
-        Message messageObject = new Message(mText, userName, date, time, "SEND");
+        Message messageObject = new Message(mText, userName, date, time, "SEND", 1);
         message.add(messageObject);
         sendMessageToBackend(messageObject);
         messagingAdapater.notifyDataSetChanged();
@@ -189,8 +206,19 @@ public class MessagingActivity extends Activity {
 
         new AsyncTask() {
             JSONObject jsonResponse = new JSONObject();
+            long insertId;
+            DbAdapter asyncDbAdapter = new DbAdapter(getApplicationContext());
             @Override
             protected Object doInBackground(Object[] params) {
+                //save message to db
+                insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, friendName, messageToSend.text, messageToSend.date, messageToSend.time, "SENT", "1");
+                if(insertId != -1) {
+                    System.out.println("Processing messing activity : Save message success");
+                }
+                else {
+                    System.out.println("Processing messaging activity : Save message failed");
+                }
+
                 System.out.println("Send Message To Backend : Encrypt message");
                 EncryptionUtil encryptionUtil = new EncryptionUtil();
                 MessageEncrypt messageEncrypt = encryptionUtil.encryptMessage(messageToSend.text, friendPublicKey, getApplicationContext());
@@ -212,6 +240,7 @@ public class MessagingActivity extends Activity {
                 try {
                     if(jsonResponse.getString("message").equalsIgnoreCase("SEND_SUCCESS")) {
                         messageToSend.status = "DELIVERED";
+                        asyncDbAdapter.updateMessage(insertId, "DELIVERED");
                     }
                     else {
                         messageToSend.status = "FAILED";
@@ -235,19 +264,22 @@ public class MessagingActivity extends Activity {
     }
 
     private void loadChatContent() {
+        DbAdapter dbAdapter = new DbAdapter(getApplicationContext());
+        Cursor chatContentCursor = dbAdapter.getMessage(String.valueOf(friendId));
+        if(chatContentCursor.getCount() > 0) {
+            while(chatContentCursor.moveToNext()) {
+                String from = chatContentCursor.getString(chatContentCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_FROM));
+                String message = chatContentCursor.getString(chatContentCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE));
+                String status = chatContentCursor.getString(chatContentCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_STATUS));
+                String mode = chatContentCursor.getString(chatContentCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_MODE));
+                String date = chatContentCursor.getString(chatContentCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_TIME_DATE));
+                String time = chatContentCursor.getString(chatContentCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_TIME_TIME));
+                Message messageObject = new Message(message, from, date, time, status, Integer.valueOf(mode));
+                messagingAdapater.add(messageObject);
+            }
+        }
 
-    }
-
-    private void processMessage(Context context, Intent intent, String condition) {
-        System.out.println("Messaging Activity : Processing message to adapter/notification");
-        if(condition.equalsIgnoreCase("onresume")) {
-            System.out.println("Processing onresume in messaging activity");
-            String message = intent.getStringExtra("message");
-            String date = intent.getStringExtra("date");
-            String time = intent.getStringExtra("time");
-            Message newMessage = new Message(message, friendName, date, time, "");
-            messagingAdapater.add(newMessage);
-
+        if(messagingAdapater.getCount() > 0) {
             runOnUiThread(new Runnable() {
 
                 @Override
@@ -257,12 +289,97 @@ public class MessagingActivity extends Activity {
                 }
             });
         }
-        else if(condition.equalsIgnoreCase("onpause")) {
-            System.out.println("Processing onpause in messaging activity");
-        }
-        else {
-            System.out.println("Processing onstop in messaging activity");
-        }
+    }
+
+    private void processMessage(Context context, Intent intent, String condition) {
+        final Context asyncContext = context;
+        final Intent asyncIntent = intent;
+        final String asyncCondition = condition;
+        new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] params) {
+                System.out.println("Messaging Activity : Processing message to adapter/notification");
+                //get data from intent
+                String message = asyncIntent.getStringExtra("message");
+                String date = asyncIntent.getStringExtra("date");
+                String time = asyncIntent.getStringExtra("time");
+                int id = asyncIntent.getIntExtra("id", 0);
+                String phoneNumber = asyncIntent.getStringExtra("phonenumber");
+                byte[] publicKey = asyncIntent.getByteArrayExtra("publickey");
+                String name = asyncIntent.getStringExtra("name");
+
+                if(asyncCondition.equalsIgnoreCase("onresume")) {
+                    System.out.println("Processing onresume in messaging activity");
+                    //debug intent
+                    System.out.println("Receiving intent in onresume messaging activity");
+                    System.out.println("===============================================");
+                    System.out.println("Message : " + message);
+                    System.out.println("Date : " + date);
+                    System.out.println("Time : " + time);
+                    System.out.println("ID : " + id);
+                    System.out.println("Name : " + name);
+                    System.out.println("Public Key : " + publicKey.toString());
+                    System.out.println("===============================================");
+
+                    System.out.println("Friend id : " + friendId + ", Id intent : " + id);
+                    if(String.valueOf(friendId).equals(String.valueOf(id))) {
+                        final Message newMessage = new Message(message, friendName, date, time, "", 2);
+
+                        runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                // TODO Auto-generated method stub
+                                messagingAdapater.add(newMessage);
+                                messagingAdapater.notifyDataSetChanged();
+                            }
+                        });
+                    }
+                    else {
+                        setNotification(id, name, phoneNumber, publicKey);
+                    }
+                }
+                else if(asyncCondition.equalsIgnoreCase("onpause")) {
+                    System.out.println("Processing onpause in messaging activity");
+                    setNotification(id, name, phoneNumber, publicKey);
+                }
+                else {
+                    System.out.println("Processing onstop in messaging activity");
+                    setNotification(id, name, phoneNumber, publicKey);
+                }
+                return "";
+            }
+        }.execute(null, null, null);
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private void setNotification(int friendId, String friendName, String friendPhoneNumber, byte[] friendPublicKey ) {
+        Intent intent = new Intent(this, MessagingActivity.class);
+        intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_USER_ID, friendId);
+        intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_NAME, friendName);
+        intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_PHONENUMBER, friendPhoneNumber);
+        intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_PUBLICKEY, friendPublicKey);
+
+        TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(this);
+        taskStackBuilder.addParentStack(ChatActivity.class);
+        taskStackBuilder.addNextIntent(intent);
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setContentTitle("New Message")
+                        .setContentText("New message from " + friendName);
+
+        PendingIntent resultPendingIntent =
+                taskStackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+        mBuilder.setContentIntent(resultPendingIntent);
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(101, mBuilder.build());
     }
 
     @Override
