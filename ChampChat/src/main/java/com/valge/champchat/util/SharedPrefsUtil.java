@@ -22,6 +22,9 @@ public class SharedPrefsUtil {
     public static final String KEY_SECRET_KEY = "SECRETKEY";
     public static final String KEY_ACTIVITY_LOCATION = "ACTIVITYLOCATION";
 
+    //receiver
+    public static final String KEY_NOTIFICATION_MODE = "NOTIFICATIONMODE";
+
     private Context context;
 
     public int userId;
@@ -69,5 +72,34 @@ public class SharedPrefsUtil {
         SharedPreferences sprefs = context.getSharedPreferences(SharedPrefsUtil.PREFS_NAME, context.MODE_PRIVATE);
         String secretKey = sprefs.getString(SharedPrefsUtil.KEY_SECRET_KEY, "");
         return secretKey;
+    }
+
+    public void setToReceiveMode() {
+        System.out.println("This is receive mode");
+        SharedPreferences sprefs = context.getSharedPreferences(SharedPrefsUtil.PREFS_NAME, context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sprefs.edit();
+        editor.putBoolean(SharedPrefsUtil.KEY_NOTIFICATION_MODE, false);
+        editor.commit();
+    }
+
+    public void setToNotificationMode() {
+        System.out.println("Set to notif mode");
+        SharedPreferences sprefs = context.getSharedPreferences(SharedPrefsUtil.PREFS_NAME, context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sprefs.edit();
+        editor.putBoolean(SharedPrefsUtil.KEY_NOTIFICATION_MODE, true);
+        editor.commit();
+    }
+
+    public boolean isNotificationModeOn() {
+        SharedPreferences sprefs = context.getSharedPreferences(SharedPrefsUtil.PREFS_NAME, context.MODE_PRIVATE);
+        boolean isNotifMode = sprefs.getBoolean(SharedPrefsUtil.KEY_NOTIFICATION_MODE, true);
+
+        if(isNotifMode) {
+            System.out.println("This is notif mode");
+        }
+        else {
+            System.out.println("This is receive mode");
+        }
+        return isNotifMode;
     }
 }

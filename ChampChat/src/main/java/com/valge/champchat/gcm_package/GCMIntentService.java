@@ -1,17 +1,27 @@
 package com.valge.champchat.gcm_package;
 
+import android.annotation.TargetApi;
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.valge.champchat.MessagingActivity;
 import com.valge.champchat.R;
+import com.valge.champchat.util.DbAdapter;
+import com.valge.champchat.util.EncryptionUtil;
+import com.valge.champchat.util.IntentExtrasUtil;
+import com.valge.champchat.util.SharedPrefsUtil;
+
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 /**
  * Created by Albert Widiatmoko on 29/11/13.
@@ -53,30 +63,100 @@ public class GCMIntentService extends IntentService {
             } else if (GoogleCloudMessaging. MESSAGE_TYPE_MESSAGE.equals(messageType)) {
                 System.out.println("Launching notification");
 
-                // Post notification of received message.
-                sendNotification("Received: " + extras.toString());
-                System.out.println("GCMRec: " + extras.toString());
-                Log.i(TAG, "Received: " + extras.toString());
+                processIncomingMessage(intent);
             }
         }
     }
 
-    private void sendNotification(String msg) {
-        mNotificationManager = (NotificationManager)
-                this.getSystemService(Context.NOTIFICATION_SERVICE);
+    private void processIncomingMessage(Intent intent) {
+        System.out.println("Broadcast Receiver: Get data from GCM");
+        String message = intent.getStringExtra("message");
+        String messageKey = intent.getStringExtra("key");
+        String messageHash = intent.getStringExtra("hash");
+        int friendId = Integer.parseInt(intent.getStringExtra("whosent"));
+        String friendName = "";
+        byte[] friendPublicKey = null;
+        String friendPhoneNumber = "";
 
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,new Intent(this, MessagingActivity.class), 0);
+        //debug
+        System.out.println("Broadcast Receiver: Data from GCM:");
+        System.out.println("==================================");
+        System.out.println("Message :" + message);
+        System.out.println("Message Key :" + messageKey);
+        System.out.println("Message Hash :" + messageHash);
+        System.out.println("Who Sent :" + friendId);
+        System.out.println("==================================");
+
+        DbAdapter asyncDbAdapter = new DbAdapter(getApplicationContext());
+        GregorianCalendar gCalendar = new GregorianCalendar();
+        EncryptionUtil encryptionUtil = new EncryptionUtil();
+
+        //load friend info
+        Cursor friendDataCursor = asyncDbAdapter.getFriendInfo(friendId);
+
+        if(friendDataCursor.getCount() > 0) {
+            friendDataCursor.moveToFirst();
+            friendName = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_NAME));
+            friendPublicKey = friendDataCursor.getBlob(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
+            friendPhoneNumber = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PHONE_NUMBER));
+        }
+
+        //date-time
+        String date = gCalendar.get(Calendar.DATE) + "-" + gCalendar.get(Calendar.MONTH) + "-" + gCalendar.get(Calendar.YEAR) + " /";
+        String time = gCalendar.get(Calendar.HOUR) + ":" + gCalendar.get(Calendar.MINUTE);
+
+        String originalMessage = encryptionUtil.decryptMessage(message, messageKey, messageHash, getApplicationContext());
+        System.out.println("Process Message: Original Message = " + originalMessage);
+
+        //save message to db
+        long insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, friendName, originalMessage, date, time, "", "2");
+        if(insertId != -1) {
+            System.out.println("Processing chat activity : Save message success");
+        }
+        else {
+            System.out.println("Processing chat activity : Save message failed");
+        }
+
+        SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(getApplicationContext());
+        if(!sharedPrefsUtil.isNotificationModeOn()) {
+            Intent messagingIntent = new Intent("messagingactiv");
+            messagingIntent.putExtra("message", originalMessage);
+            messagingIntent.putExtra("id", friendId);
+            messagingIntent.putExtra("name", friendName);
+            messagingIntent.putExtra("phonenumber", friendPhoneNumber);
+            messagingIntent.putExtra("publickey", friendPublicKey);
+            messagingIntent.putExtra("date", date);
+            messagingIntent.putExtra("time", time);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messagingIntent);
+        }
+        else {
+            System.out.println("Sending notification");
+            setNotification(friendId, friendName, friendPhoneNumber, friendPublicKey);
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private void setNotification(int friendId, String friendName, String friendPhoneNumber, byte[] friendPublicKey ) {
+        System.out.println("Set notification from intentservice");
+        Intent intent = new Intent(this, MessagingActivity.class);
+        intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_USER_ID, friendId);
+        intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_NAME, friendName);
+        intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_PHONENUMBER, friendPhoneNumber);
+        intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_PUBLICKEY, friendPublicKey);
+
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_launcher)
-                        .setContentTitle("GCM Notification")
-                        .setStyle(new NotificationCompat.BigTextStyle()
-                                .bigText(msg))
-                        .setContentText(msg);
+                        .setContentTitle("New Message")
+                        .setContentText("New message from " + friendName);
 
-        mBuilder.setContentIntent(contentIntent);
-        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        mBuilder.setContentIntent(pIntent);
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(0, mBuilder.build());
     }
 }
 

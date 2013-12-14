@@ -93,16 +93,13 @@ public class MessagingActivity extends Activity {
         context = getApplicationContext();
         gCalendar = new GregorianCalendar();
 
-        if(getIntent().getExtras() != null) {
-            Intent intent = getIntent();
-            friendId = intent.getExtras().getInt(IntentExtrasUtil.XTRAS_FRIEND_USER_ID);
-            friendName = intent.getExtras().getString(IntentExtrasUtil.XTRAS_FRIEND_NAME);
-            friendPhoneNumber = intent.getExtras().getString(IntentExtrasUtil.XTRAS_FRIEND_PHONENUMBER);
-            friendPublicKey = intent.getExtras().getByteArray(IntentExtrasUtil.XTRAS_FRIEND_PUBLICKEY);
-        }
-        else {
-            loadFriendData();
-        }
+        Intent intent = getIntent();
+        friendId = intent.getExtras().getInt(IntentExtrasUtil.XTRAS_FRIEND_USER_ID);
+        friendName = intent.getExtras().getString(IntentExtrasUtil.XTRAS_FRIEND_NAME);
+        friendPhoneNumber = intent.getExtras().getString(IntentExtrasUtil.XTRAS_FRIEND_PHONENUMBER);
+        friendPublicKey = intent.getExtras().getByteArray(IntentExtrasUtil.XTRAS_FRIEND_PUBLICKEY);
+
+        System.out.println("Friend ID : " + friendId);
 
         SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(context);
         sharedPrefsUtil.loadApplicationPrefs();
@@ -291,69 +288,9 @@ public class MessagingActivity extends Activity {
         }
     }
 
-    private void processMessage(Context context, Intent intent, String condition) {
-        final Context asyncContext = context;
-        final Intent asyncIntent = intent;
-        final String asyncCondition = condition;
-        new AsyncTask() {
-            @Override
-            protected Object doInBackground(Object[] params) {
-                System.out.println("Messaging Activity : Processing message to adapter/notification");
-                //get data from intent
-                String message = asyncIntent.getStringExtra("message");
-                String date = asyncIntent.getStringExtra("date");
-                String time = asyncIntent.getStringExtra("time");
-                int id = asyncIntent.getIntExtra("id", 0);
-                String phoneNumber = asyncIntent.getStringExtra("phonenumber");
-                byte[] publicKey = asyncIntent.getByteArrayExtra("publickey");
-                String name = asyncIntent.getStringExtra("name");
-
-                if(asyncCondition.equalsIgnoreCase("onresume")) {
-                    System.out.println("Processing onresume in messaging activity");
-                    //debug intent
-                    System.out.println("Receiving intent in onresume messaging activity");
-                    System.out.println("===============================================");
-                    System.out.println("Message : " + message);
-                    System.out.println("Date : " + date);
-                    System.out.println("Time : " + time);
-                    System.out.println("ID : " + id);
-                    System.out.println("Name : " + name);
-                    System.out.println("Public Key : " + publicKey.toString());
-                    System.out.println("===============================================");
-
-                    System.out.println("Friend id : " + friendId + ", Id intent : " + id);
-                    if(String.valueOf(friendId).equals(String.valueOf(id))) {
-                        final Message newMessage = new Message(message, friendName, date, time, "", 2);
-
-                        runOnUiThread(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                // TODO Auto-generated method stub
-                                messagingAdapater.add(newMessage);
-                                messagingAdapater.notifyDataSetChanged();
-                            }
-                        });
-                    }
-                    else {
-                        setNotification(id, name, phoneNumber, publicKey);
-                    }
-                }
-                else if(asyncCondition.equalsIgnoreCase("onpause")) {
-                    System.out.println("Processing onpause in messaging activity");
-                    setNotification(id, name, phoneNumber, publicKey);
-                }
-                else {
-                    System.out.println("Processing onstop in messaging activity");
-                    setNotification(id, name, phoneNumber, publicKey);
-                }
-                return "";
-            }
-        }.execute(null, null, null);
-    }
-
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void setNotification(int friendId, String friendName, String friendPhoneNumber, byte[] friendPublicKey ) {
+        System.out.println("Set notification from messaging");
         Intent intent = new Intent(this, MessagingActivity.class);
         intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_USER_ID, friendId);
         intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_NAME, friendName);
@@ -386,13 +323,38 @@ public class MessagingActivity extends Activity {
     protected void onResume() {
         super.onResume();
         System.out.println("This is onresume in messaging");
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(onPauseReceiver);
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(onStopReceiver);
+        SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(getApplicationContext());
+        sharedPrefsUtil.setToReceiveMode();
+
         onResumeReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                processMessage(context, intent, "onresume");
-                //System.out.println("Pause : " + intent.getStringExtra("message"));
+                System.out.println("Messaging Activity : Processing message to adapter/notification");
+                //get data from intent
+                String message = intent.getStringExtra("message");
+                String date = intent.getStringExtra("date");
+                String time = intent.getStringExtra("time");
+                int id = intent.getIntExtra("id", 0);
+                String phoneNumber = intent.getStringExtra("phonenumber");
+                byte[] publicKey = intent.getByteArrayExtra("publickey");
+                String name = intent.getStringExtra("name");
+
+                if(String.valueOf(friendId).equals(String.valueOf(id))) {
+                    final Message newMessage = new Message(message, friendName, date, time, "", 2);
+
+                    runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            // TODO Auto-generated method stub
+                            messagingAdapater.add(newMessage);
+                            messagingAdapater.notifyDataSetChanged();
+                        }
+                    });
+                }
+                else {
+                    setNotification(id, name, phoneNumber, publicKey);
+                }
             }
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(onResumeReceiver, new IntentFilter("messagingactiv"));
@@ -404,15 +366,8 @@ public class MessagingActivity extends Activity {
         super.onPause();
         System.out.println("This is onpause in messaging");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(onResumeReceiver);
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(onStopReceiver);
-        onPauseReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                processMessage(context, intent, "onpause");
-                //System.out.println("Pause : " + intent.getStringExtra("message"));
-            }
-        };
-        LocalBroadcastManager.getInstance(this).registerReceiver(onPauseReceiver, new IntentFilter("messagingactiv"));
+        SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(getApplicationContext());
+        sharedPrefsUtil.setToNotificationMode();
     }
 
     @Override
@@ -420,22 +375,7 @@ public class MessagingActivity extends Activity {
         super.onStop();
         System.out.println("This is onstop in messaging");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(onResumeReceiver);
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(onPauseReceiver);
-        onStopReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                processMessage(context, intent, "onstop");
-                //System.out.println("Pause : " + intent.getStringExtra("message"));
-            }
-        };
-        LocalBroadcastManager.getInstance(this).registerReceiver(onStopReceiver, new IntentFilter("messagingactiv"));
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(onStopReceiver);
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(onResumeReceiver);
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(onPauseReceiver);
+        SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(getApplicationContext());
+        sharedPrefsUtil.setToNotificationMode();
     }
 }
