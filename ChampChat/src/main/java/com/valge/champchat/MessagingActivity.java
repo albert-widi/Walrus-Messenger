@@ -314,6 +314,7 @@ public class MessagingActivity extends Activity {
                 );
 
         mBuilder.setContentIntent(resultPendingIntent);
+        mBuilder.setAutoCancel(true);
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(101, mBuilder.build());

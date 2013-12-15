@@ -32,7 +32,14 @@ public class MessagingAdapter extends ArrayAdapter{
             // Get a new instance of the row layout view
         	LayoutInflater inflater = (LayoutInflater) context
     				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            rowView = inflater.inflate(R.layout.message_list_item, null);
+
+            if(message.get(position).mode == 1) {
+                rowView = inflater.inflate(R.layout.message_list_item, null);
+            }
+            else {
+                rowView = inflater.inflate(R.layout.message_list_item_2, null);
+            }
+
 
             // Hold the view objects in an object,
             // so they don't need to be re-fetched
