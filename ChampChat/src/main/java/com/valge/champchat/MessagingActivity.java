@@ -156,11 +156,31 @@ public class MessagingActivity extends Activity {
         String date = getCurrentDate();
         String time = getCurrentTime();
 
-        Message messageObject = new Message(mText, userName, date, time, "SEND", 2);
+        setNewMessage(mText, date, time);
+        /*if(!message.isEmpty()) {
+            int size = message.size() - 1;
+            System.out.println("Date previous : " + message.get(size).date + " , Date Now : " + date);
+            System.out.println("Time previous : " + message.get(size).time + " , Time Now : " + time);
+            if(message.get(size).date.equals(date) && message.get(size).time.equals(time)) {
+                message.get(size).text += "\n\n" + mText;
+                messagingAdapater.notifyDataSetChanged();
+            }
+            else {
+                setNewMessage(mText, date, time);
+            }
+        }
+        else {
+            setNewMessage(mText, date, time);
+        }*/
+
+        editMessage.setText("");
+    }
+
+    private void setNewMessage(String text, String date, String time) {
+        Message messageObject = new Message(text, userName, date, time, "SEND", 2);
         message.add(messageObject);
         sendMessageToBackend(messageObject);
         messagingAdapater.notifyDataSetChanged();
-        editMessage.setText("");
     }
 
     private String getCurrentDate() {
