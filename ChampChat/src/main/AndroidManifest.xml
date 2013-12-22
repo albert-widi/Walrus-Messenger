@@ -39,8 +39,7 @@
         </receiver>
 
         <activity
-            android:name="com.valge.champchat.ChatActivity"
-            android:label="@string/chat_activity" >
+            android:name="com.valge.champchat.ChatActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -50,6 +49,7 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable_contacts" />
         </activity>
+
         <activity
             android:name="com.valge.champchat.AboutActivity"
             android:label="@string/title_activity_about"

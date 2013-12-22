@@ -89,6 +89,7 @@ public class ChatActivity extends Activity {
         context = this;
         dbAdapter = new DbAdapter(context);
         context = getApplicationContext();
+        this.setTitle("Chats");
     }
 
 

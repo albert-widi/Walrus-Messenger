@@ -181,7 +181,7 @@ public class MessagingActivity extends Activity {
             @Override
             protected Object doInBackground(Object[] params) {
                 //save message to db
-                insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, friendName, messageToSend.text, messageToSend.date, messageToSend.time, "SENT", "2");
+                insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, userName, messageToSend.text, messageToSend.date, messageToSend.time, "SENT", "2");
                 if(insertId != -1) {
                     System.out.println("Processing messing activity : Save message success");
                 }
@@ -216,15 +216,18 @@ public class MessagingActivity extends Activity {
                         messageToSend.status = "FAILED";
                     }
 
-                    //refresh adapter
-                    runOnUiThread(new Runnable() {
+                    ActivityLocationSharedPrefs activityLocationSharedPrefs = new ActivityLocationSharedPrefs(getApplicationContext());
+                    if(activityLocationSharedPrefs.isChatActivityActive()) {
+                        //refresh adapter
+                        runOnUiThread(new Runnable() {
 
-                        @Override
-                        public void run() {
-                            // TODO Auto-generated method stub
-                            messagingAdapater.notifyDataSetChanged();
-                        }
-                    });
+                            @Override
+                            public void run() {
+                                // TODO Auto-generated method stub
+                                messagingAdapater.notifyDataSetChanged();
+                            }
+                        });
+                    }
                 }
                 catch(Exception e) {
                     e.printStackTrace();

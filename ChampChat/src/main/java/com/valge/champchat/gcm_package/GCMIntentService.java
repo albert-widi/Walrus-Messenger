@@ -72,6 +72,7 @@ public class GCMIntentService extends IntentService {
 
     private void processIncomingMessage(Intent intent) {
         System.out.println("Broadcast Receiver: Get data from GCM");
+        boolean friendExists = false;
         String message = intent.getStringExtra("message");
         String messageKey = intent.getStringExtra("key");
         String messageHash = intent.getStringExtra("hash");
@@ -97,10 +98,15 @@ public class GCMIntentService extends IntentService {
         Cursor friendDataCursor = asyncDbAdapter.getFriendInfo(friendId);
 
         if(friendDataCursor.getCount() > 0) {
+            friendExists = true;
             friendDataCursor.moveToFirst();
             friendName = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_NAME));
             friendPublicKey = friendDataCursor.getBlob(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
             friendPhoneNumber = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PHONE_NUMBER));
+        }
+        else {
+            //disable message coming-in from unknown source for now
+            return;
         }
 
         //date-time
