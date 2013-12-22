@@ -17,8 +17,6 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -109,31 +107,6 @@ public class MessagingActivity extends Activity {
         this.setTitle(friendName);
     }
 
-    public void loadFriendData() {
-
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.messaging, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -145,7 +118,7 @@ public class MessagingActivity extends Activity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_messaging, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_test, container, false);
             return rootView;
         }
     }
@@ -183,7 +156,7 @@ public class MessagingActivity extends Activity {
         String date = getCurrentDate();
         String time = getCurrentTime();
 
-        Message messageObject = new Message(mText, userName, date, time, "SEND", 1);
+        Message messageObject = new Message(mText, userName, date, time, "SEND", 2);
         message.add(messageObject);
         sendMessageToBackend(messageObject);
         messagingAdapater.notifyDataSetChanged();
@@ -208,7 +181,7 @@ public class MessagingActivity extends Activity {
             @Override
             protected Object doInBackground(Object[] params) {
                 //save message to db
-                insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, friendName, messageToSend.text, messageToSend.date, messageToSend.time, "SENT", "1");
+                insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, friendName, messageToSend.text, messageToSend.date, messageToSend.time, "SENT", "2");
                 if(insertId != -1) {
                     System.out.println("Processing messing activity : Save message success");
                 }
@@ -341,7 +314,7 @@ public class MessagingActivity extends Activity {
                 String name = intent.getStringExtra("name");
 
                 if(String.valueOf(friendId).equals(String.valueOf(id))) {
-                    final Message newMessage = new Message(message, friendName, date, time, "", 2);
+                    final Message newMessage = new Message(message, friendName, date, time, "", 1);
 
                     runOnUiThread(new Runnable() {
 

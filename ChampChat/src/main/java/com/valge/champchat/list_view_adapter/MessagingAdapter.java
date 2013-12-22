@@ -17,7 +17,7 @@ public class MessagingAdapter extends ArrayAdapter{
 	ArrayList<Message> message;
 	
 	public MessagingAdapter(Context context, ArrayList<Message> messageData) {
-		super(context, R.layout.message_list_item, messageData);
+		super(context, R.layout.fragment_test, messageData);
 		this.context = context;
 		this.message = messageData;
 	}
@@ -33,12 +33,18 @@ public class MessagingAdapter extends ArrayAdapter{
         	LayoutInflater inflater = (LayoutInflater) context
     				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            if(message.get(position).mode == 1) {
-                rowView = inflater.inflate(R.layout.message_list_item, null);
+
+            rowView = inflater.inflate(R.layout.message_list_item_one, null);
+            //very2 buggy
+            /*System.out.println("Mode : " + message.get(position).mode);
+            if(message.get(position).mode == 2) {
+                System.out.println("Mode 2");
+                rowView = inflater.inflate(R.layout.message_list_item_two, null);
             }
             else {
-                rowView = inflater.inflate(R.layout.message_list_item_2, null);
-            }
+                System.out.println("Mode 1");
+                rowView = inflater.inflate(R.layout.message_list_item_one, null);
+            }*/
 
 
             // Hold the view objects in an object,

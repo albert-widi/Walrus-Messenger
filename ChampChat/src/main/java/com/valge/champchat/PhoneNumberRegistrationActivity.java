@@ -114,9 +114,7 @@ public class PhoneNumberRegistrationActivity extends Activity {
                                 intent.putExtra(IntentExtrasUtil.XTRAS_ACTION, "register");
                             }
 
-
                             startActivity(intent);
-                            PhoneNumberRegistrationActivity.this.finish();
                         }
                         catch(Exception e) {
                             e.printStackTrace();

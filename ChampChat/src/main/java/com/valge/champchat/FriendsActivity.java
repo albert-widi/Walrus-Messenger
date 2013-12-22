@@ -245,7 +245,7 @@ public class FriendsActivity extends Activity {
                         //debug
                         System.out.println("Debug: friend phone number : " + friendArrayList.get(i).phoneNumber + " and " + phoneNumber);
 
-                        if(friendArrayList.get(i).phoneNumber.equalsIgnoreCase(phoneNumber)) {
+                        if(friendArrayList.get(i).id == id) {
                             System.out.println("Refresh friend list: Friend exists in database");
                             //debug
                             if(Arrays.equals(friendArrayList.get(i).publicKey, decodedKey)) {

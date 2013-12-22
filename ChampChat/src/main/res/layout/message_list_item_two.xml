@@ -1,0 +1,82 @@
+<RelativeLayout
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_marginLeft="4dp"
+    android:layout_marginRight="8dp"
+    android:paddingLeft="5dp"
+    android:paddingRight="7dp"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp"
+    android:layout_alignParentRight="true"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/message_adapter_from"
+                android:text="Albert Widiatmoko"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:textSize="16dp"
+                android:textStyle="bold|italic"
+                android:textColor="@color/username1"/>
+
+
+            <TextView
+                android:id="@+id/message_adapter_text"
+                android:text="Halo apa kabar?"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="9"
+                android:paddingLeft="3dp"
+                android:layout_marginRight="20dp"
+                android:layout_below="@+id/message_adapter_from"
+                android:gravity="left"
+                android:layout_marginTop="10dp"
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/message_adapter_date"
+                android:layout_below="@+id/message_adapter_text"
+                android:paddingLeft="3dp"
+                android:layout_marginTop="10dp"
+                android:textSize="11dp"
+                android:textColor="@color/time"/>
+
+            <TextView
+                android:id="@+id/message_adapter_time"
+                android:layout_below="@id/message_adapter_text"
+                android:layout_toRightOf="@+id/message_adapter_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="3dp"
+                android:textSize="11dp"
+                android:textColor="@color/time"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/message_adapter_text"
+                android:layout_toRightOf="@+id/message_adapter_time"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="5dp"
+                android:id="@+id/message_adapter_msgstatus"
+                android:textSize="11dp"
+                android:textColor="@color/time"/>
+
+            </RelativeLayout>
+
+        </FrameLayout>
+
+</RelativeLayout>

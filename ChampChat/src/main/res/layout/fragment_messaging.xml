@@ -36,17 +36,15 @@
                 android:dividerHeight="8dp"
                 android:stackFromBottom="true"
                 android:transcriptMode="alwaysScroll">
-
-
             </ListView>
-
         </FrameLayout>
 
 
         <FrameLayout
             android:layout_height="10dp"
             android:layout_width="match_parent"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:layout_marginBottom="1dp">
 
             <LinearLayout
                 android:layout_height="match_parent"

@@ -127,6 +127,8 @@ public class EncryptionUtil {
             else {
                 return "Message had been manipulated";
             }
+
+            //return originalMessage;
         }
         catch (Exception e) {
             e.printStackTrace();

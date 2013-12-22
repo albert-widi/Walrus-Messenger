@@ -8,61 +8,68 @@
     <TextView
         android:layout_height="65dp"
         android:layout_width="match_parent"
-        android:background="@color/grey_light"
+        android:background="@color/blue1"
         android:textSize="25dp"
         android:gravity="center_horizontal|center_vertical"
         android:text="@string/welcome_to_app"/>
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:gravity="center_horizontal"
-        android:layout_marginTop="20dp"
-        android:text="Phone Number :"
-        android:textSize="20dp"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/bluelight1">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:layout_gravity="center_horizontal"
-        android:gravity="center_horizontal|center_vertical">
-
-        <EditText
-            android:id="@+id/check_phone_code"
-            android:layout_width="55dp"
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="+62"
-            android:inputType="text" />
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:text="Phone Number :"
+            android:textSize="20dp"/>
 
-
-        <EditText
-            android:id="@+id/check_phone_number"
-            android:hint="Ex: 813XXXXX"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_width="150dp"
-            android:layout_toRightOf="@+id/check_phone_code"
+            android:layout_marginTop="15dp"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal|center_vertical">
 
-            android:inputType="phone"/>
+            <EditText
+                android:id="@+id/check_phone_code"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:text="+62"
+                android:inputType="text" />
 
-    </RelativeLayout>
 
-    <Button
-        android:id="@+id/confirm_button"
-        android:layout_width="180dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="35dp"
-        android:gravity="center_horizontal|center_vertical"
-        android:text="Confirm"/>
+            <EditText
+                android:id="@+id/check_phone_number"
+                android:hint="Ex: 813XXXXX"
+                android:layout_height="wrap_content"
+                android:layout_width="150dp"
+                android:layout_toRightOf="@+id/check_phone_code"
 
-    <Button
-        android:id="@+id/reg_button"
-        android:layout_width="180dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="35dp"
-        android:gravity="center_horizontal|center_vertical"
-        android:text="App Info"/>
+                android:inputType="phone"/>
+
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/confirm_button"
+            android:layout_width="180dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="35dp"
+            android:gravity="center_horizontal|center_vertical"
+            android:text="Confirm"/>
+
+        <Button
+            android:id="@+id/reg_button"
+            android:layout_width="180dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="35dp"
+            android:gravity="center_horizontal|center_vertical"
+            android:text="App Info"/>
+    </LinearLayout>
 </LinearLayout>

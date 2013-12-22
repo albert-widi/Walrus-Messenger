@@ -111,7 +111,7 @@ public class GCMIntentService extends IntentService {
         System.out.println("Process Message: Original Message = " + originalMessage);
 
         //save message to db
-        long insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, friendName, originalMessage, date, time, "", "2");
+        long insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, friendName, originalMessage, date, time, "", "1");
         if(insertId != -1) {
             System.out.println("Processing chat activity : Save message success");
         }
