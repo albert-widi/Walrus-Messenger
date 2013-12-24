@@ -65,11 +65,12 @@ public class MessagingAdapter extends ArrayAdapter{
         // Transfer the stock data from the data object
         // to the view objects      
         //MessageData currentMsg = (MessageData)messages.get(position);
-        msgView.message.setText(message.get(position).text);
-        msgView.from.setText(message.get(position).from);
-        msgView.date.setText(message.get(position).date);
-        msgView.time.setText(message.get(position).time);
-        
+        if(message.size() > 0) {
+            msgView.message.setText(message.get(position).text);
+            msgView.from.setText(message.get(position).from);
+            msgView.date.setText(message.get(position).date);
+            msgView.time.setText(message.get(position).time);
+        }
         return rowView;
     }
 

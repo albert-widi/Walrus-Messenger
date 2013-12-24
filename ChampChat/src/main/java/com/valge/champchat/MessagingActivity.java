@@ -345,16 +345,14 @@ public class MessagingActivity extends Activity {
             System.out.println("Delete all message success");
             message.clear();
 
-            if(messagingAdapater.getCount() > 0) {
-                runOnUiThread(new Runnable() {
+            runOnUiThread(new Runnable() {
 
-                    @Override
-                    public void run() {
-                        // TODO Auto-generated method stub
-                        messagingAdapater.notifyDataSetChanged();
-                    }
-                });
-            }
+                @Override
+                public void run() {
+                    // TODO Auto-generated method stub
+                    messagingAdapater.notifyDataSetChanged();
+                }
+            });
         }
         else {
             System.out.println("Delete all message failed");
@@ -367,16 +365,14 @@ public class MessagingActivity extends Activity {
             System.out.println("Delete message success");
             message.remove(position);
 
-            if(messagingAdapater.getCount() > 0) {
-                runOnUiThread(new Runnable() {
+            runOnUiThread(new Runnable() {
 
-                    @Override
-                    public void run() {
-                        // TODO Auto-generated method stub
-                        messagingAdapater.notifyDataSetChanged();
-                    }
-                });
-            }
+                @Override
+                public void run() {
+                    // TODO Auto-generated method stub
+                    messagingAdapater.notifyDataSetChanged();
+                }
+            });
         }
         else {
             System.out.println("Delete message failed");

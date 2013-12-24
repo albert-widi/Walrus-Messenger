@@ -188,6 +188,7 @@ public class ChatActivity extends Activity {
                         int messageArrayListSize = messageArrayList.size();
                         boolean friendExists = false;
                         int friendNumber = 0;
+
                         if(messageArrayListSize > 0) {
                             for(int i = 0;i < messageArrayListSize; i++) {
                                 if(messageArrayList.get(i).id == friendId) {
@@ -204,12 +205,15 @@ public class ChatActivity extends Activity {
                         }
 
                         Cursor messageCursor = dbAdapter.getFriendLastMessage(String.valueOf(friendId));
+                        String lastMessage = "";
+                        String messageDate = "";
+                        String messageTime = "";
 
                         if(messageCursor.getCount() > 0) {
                             messageCursor.moveToFirst();
-                            String lastMessage = messageCursor.getString(messageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE));
-                            String messageDate = messageCursor.getString(messageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_TIME_DATE));
-                            String messageTime = messageCursor.getString(messageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_TIME_TIME));
+                            lastMessage = messageCursor.getString(messageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE));
+                            messageDate = messageCursor.getString(messageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_TIME_DATE));
+                            messageTime = messageCursor.getString(messageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_TIME_TIME));
 
                             if(lastMessage.length() > 35) {
                                 lastMessage = lastMessage.substring(0, 32) + "...";
@@ -218,19 +222,21 @@ public class ChatActivity extends Activity {
                             System.out.println("Last message : " + lastMessage);
                             System.out.println("Message date : " + messageDate);
                             System.out.println("Message time : " + messageTime);
-
-                            if(!friendExists) {
-                                friendMessage.lastMessage = lastMessage;
-                                friendMessage.lastMessageDate = messageDate;
-                                friendMessage.lastMessageTime = messageTime;
-                                messageArrayList.add(friendMessage);
-                            }
-                            else {
-                                messageArrayList.get(friendNumber).lastMessage = lastMessage;
-                                messageArrayList.get(friendNumber).lastMessageDate = messageDate;
-                                messageArrayList.get(friendNumber).lastMessageTime = messageTime;
-                            }
                         }
+
+                        //add or update friends
+                        if(!friendExists) {
+                            friendMessage.lastMessage = lastMessage;
+                            friendMessage.lastMessageDate = messageDate;
+                            friendMessage.lastMessageTime = messageTime;
+                            messageArrayList.add(friendMessage);
+                        }
+                        else {
+                            messageArrayList.get(friendNumber).lastMessage = lastMessage;
+                            messageArrayList.get(friendNumber).lastMessageDate = messageDate;
+                            messageArrayList.get(friendNumber).lastMessageTime = messageTime;
+                        }
+
                         messageCursor.close();
                     }
                     friendMessageCursor.close();
