@@ -4,6 +4,7 @@ package com.valge.champchat.util;
  * Created by Albert Widiatmoko on 07/12/13.
  */
 public class Message {
+    public long id;
     public String text;
     public String from;
     public String date;

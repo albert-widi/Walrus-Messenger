@@ -381,6 +381,10 @@ public class FriendsActivity extends Activity {
         });
     }
 
+    private void deleteChatThread() {
+
+    }
+
     public void updateFriendListView(String param) {
         if(!param.equalsIgnoreCase("")) {
             int friendsLength = friendArrayList.size();

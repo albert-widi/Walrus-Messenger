@@ -16,10 +16,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -124,12 +129,53 @@ public class MessagingActivity extends Activity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.messaging, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.action_delete_all_message:
+                deleteAllChat();
+                return true;
+
+            default:
+                return super.onMenuItemSelected(featureId, item);
+        }
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.messaging_listview, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.action_delete_message:
+                deleteChat(info.position);
+                return true;
+
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
+
+    @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
         ListView messageList = (ListView) findViewById(R.id.message_list);
         messagingAdapater = new MessagingAdapter(getApplicationContext(), message);
         messageList.setAdapter(messagingAdapater);
+        registerForContextMenu(messageList);
 
         sendButton = (Button) findViewById(R.id.send_button);
         editMessage = (EditText) findViewById(R.id.enter_message);
@@ -142,6 +188,14 @@ public class MessagingActivity extends Activity {
                 sendMessage();
             }
         });
+
+        /*messageList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+                return false;
+            }
+        });*/
 
         //load message from db
         loadChatContent();
@@ -203,6 +257,7 @@ public class MessagingActivity extends Activity {
                 //save message to db
                 insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, userName, messageToSend.text, messageToSend.date, messageToSend.time, "SENT", "2");
                 if(insertId != -1) {
+                    messageToSend.id = insertId;
                     System.out.println("Processing messing activity : Save message success");
                 }
                 else {
@@ -281,6 +336,50 @@ public class MessagingActivity extends Activity {
                     messagingAdapater.notifyDataSetChanged();
                 }
             });
+        }
+    }
+
+    private void deleteAllChat() {
+        DbAdapter dbAdapter = new DbAdapter(getApplicationContext());
+        if(dbAdapter.deleteAllMessage(friendId)) {
+            System.out.println("Delete all message success");
+            message.clear();
+
+            if(messagingAdapater.getCount() > 0) {
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        // TODO Auto-generated method stub
+                        messagingAdapater.notifyDataSetChanged();
+                    }
+                });
+            }
+        }
+        else {
+            System.out.println("Delete all message failed");
+        };
+    }
+
+    private void deleteChat(long position) {
+        DbAdapter dbAdapter = new DbAdapter(getApplicationContext());
+        if(dbAdapter.deleteMessage(position)) {
+            System.out.println("Delete message success");
+            message.remove(position);
+
+            if(messagingAdapater.getCount() > 0) {
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        // TODO Auto-generated method stub
+                        messagingAdapater.notifyDataSetChanged();
+                    }
+                });
+            }
+        }
+        else {
+            System.out.println("Delete message failed");
         }
     }
 

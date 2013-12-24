@@ -195,7 +195,6 @@ public class DbAdapter {
                 DbHelper.COLUMN_FRIEND_ID + " = ?",
                 selectionArg, null, null, DbHelper.COLUMN_ID);
 
-
         return cursor;
     }
 
@@ -302,6 +301,67 @@ public class DbAdapter {
         return cursor;
     }
 
+    public boolean deleteMessage(long id) {
+        openConnection();
+        long deleteId = db.delete(DbHelper.TABLE_MESSAGE_HISTORY, DbHelper.COLUMN_ID + " = " + id, null);
+        closeConnection();
+
+        if(deleteId == -1) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean deleteAllMessage(int friendId) {
+        openConnection();
+        long deleteId = db.delete(DbHelper.TABLE_MESSAGE_HISTORY, DbHelper.COLUMN_MESSAGE_WITH_ID + " = " + friendId, null);
+        closeConnection();
+
+        if(deleteId == -1) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void saveChatThread(int friendId) {
+        openConnection();
+        //check
+        String[] columns = {DbHelper.COLUMN_FRIEND_THREAD_ID};
+        String[] selectionArg = {String.valueOf(friendId)};
+        //String[] selectionArg = {DatabaseUtils.sqlEscapeString(filter)};
+
+        Cursor cursor;
+        cursor = db.query(DbHelper.TABLE_CHAT_THREAD,
+                columns,
+                DbHelper.COLUMN_FRIEND_ID + " = ?",
+                selectionArg, null, null, DbHelper.COLUMN_ID);
+
+        if(cursor.getCount() > 0) {
+            return;
+        }
+
+        //save
+        ContentValues values = new ContentValues();
+        values.put(DbHelper.COLUMN_FRIEND_THREAD_ID, friendId);
+        long id = db.insert(DbHelper.TABLE_CHAT_THREAD, null, values);
+        closeConnection();
+    }
+
+    public Cursor getChatThread() {
+        openConnection();
+        String[] columns = {DbHelper.COLUMN_FRIEND_THREAD_ID};
+
+        Cursor cursor = db.query(DbHelper.TABLE_CHAT_THREAD,
+                columns,
+                null,
+                null,
+                DbHelper.COLUMN_FRIEND_THREAD_ID, null, null);
+
+        return cursor;
+    }
+
     public boolean databaseExists() {
         File database = appContext.getDatabasePath(DbHelper.DATABASE_NAME);
         return database.exists();
@@ -343,6 +403,12 @@ public class DbAdapter {
         public static final String COLUMN_MESSAGE_TIME_TIME = "msgtimetime";
         public static final String COLUMN_MESSAGE_TIME_TIMESTAMP = "msgtimestamp";
         public static final String COLUMN_MESSAGE_STATUS = "msgstatus";
+        //table block
+        public static final String TABLE_ID_BLOCK = "idblock";
+        public static final String COLUMN_BLOCKED_ID = "blockedid";
+        //table available chat thread
+        public static final String TABLE_CHAT_THREAD = "chatthread";
+        public static final String COLUMN_FRIEND_THREAD_ID = "friendthreadid";
 
         //creating table
         public static final String TABLE_CREATE_USERDAT = "CREATE TABLE " + TABLE_USERDAT + " (" +
@@ -373,6 +439,13 @@ public class DbAdapter {
                 COLUMN_MESSAGE_TIME_DATE + " TEXT NOT NULL, " +
                 COLUMN_MESSAGE_TIME_TIME + " TEXT NOT NULL, " +
                 COLUMN_MESSAGE_TIME_TIMESTAMP + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);";
+
+        public static final String TABLE_CREATE_ID_BLOCK = "CREATE TABLE " + TABLE_ID_BLOCK + " (" +
+                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_BLOCKED_ID + " NUMBER NOT NULL);";
+
+        public static final String TABLE_CREATE_CHAT_THREAD = "CREATE TABLE " + TABLE_CHAT_THREAD + " (" +
+                COLUMN_FRIEND_THREAD_ID + " NUMBER NOT NULL);";
 
 
         public DbHelper(Context context) {

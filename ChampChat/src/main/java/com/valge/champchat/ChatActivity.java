@@ -247,6 +247,7 @@ public class ChatActivity extends Activity {
     }
 
     private void setLoadedMessage() {
+        System.out.println("Set loaded message");
         fmla = new FriendMessageListAdapter(context, messageArrayList);
         messageListView = (ListView) findViewById(R.id.friends_message_listview);
         messageListView.setAdapter(fmla);

@@ -125,6 +125,9 @@ public class GCMIntentService extends IntentService {
             System.out.println("Processing chat activity : Save message failed");
         }
 
+        //save chat thread
+        asyncDbAdapter.saveChatThread(friendId);
+
         SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(getApplicationContext());
         if(!sharedPrefsUtil.isNotificationModeOn()) {
             Intent messagingIntent = new Intent("messagingactiv");
