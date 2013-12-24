@@ -210,7 +210,8 @@ public class MessagingActivity extends Activity {
         String date = getCurrentDate();
         String time = getCurrentTime();
 
-        setNewMessage(mText, date, time);
+        sendMessageToBackend(mText, date, time);
+        //setNewMessage(mText, date, time);
         /*if(!message.isEmpty()) {
             int size = message.size() - 1;
             System.out.println("Date previous : " + message.get(size).date + " , Date Now : " + date);
@@ -233,7 +234,7 @@ public class MessagingActivity extends Activity {
     private void setNewMessage(String text, String date, String time) {
         Message messageObject = new Message(text, userName, date, time, "SEND", 2);
         message.add(messageObject);
-        sendMessageToBackend(messageObject);
+        //sendMessageToBackend(messageObject);
         messagingAdapater.notifyDataSetChanged();
     }
 
@@ -245,8 +246,8 @@ public class MessagingActivity extends Activity {
         return gCalendar.get(Calendar.HOUR) + ":" + gCalendar.get(Calendar.MINUTE);
     }
 
-    private void sendMessageToBackend(Message message) {
-        final Message messageToSend = message;
+    private void sendMessageToBackend(String messageText, String date, String time) {
+        final Message messageToSend = new Message(messageText, userName, date, time, "SEND", 2);
 
         new AsyncTask() {
             JSONObject jsonResponse = new JSONObject();
@@ -254,6 +255,17 @@ public class MessagingActivity extends Activity {
             DbAdapter asyncDbAdapter = new DbAdapter(getApplicationContext());
             @Override
             protected Object doInBackground(Object[] params) {
+                //display message
+                message.add(messageToSend);
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        // TODO Auto-generated method stub
+                        messagingAdapater.notifyDataSetChanged();
+                    }
+                });
+
                 //save message to db
                 insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, userName, messageToSend.text, messageToSend.date, messageToSend.time, "SENT", "2");
                 if(insertId != -1) {
@@ -289,6 +301,7 @@ public class MessagingActivity extends Activity {
                     }
                     else {
                         messageToSend.status = "FAILED";
+                        asyncDbAdapter.updateMessage(insertId, "FAILED");
                     }
 
                     ActivityLocationSharedPrefs activityLocationSharedPrefs = new ActivityLocationSharedPrefs(getApplicationContext());
@@ -359,9 +372,10 @@ public class MessagingActivity extends Activity {
         };
     }
 
-    private void deleteChat(long position) {
+    private void deleteChat(int position) {
         DbAdapter dbAdapter = new DbAdapter(getApplicationContext());
-        if(dbAdapter.deleteMessage(position)) {
+        System.out.println("Delete message id : " + message.get(position).id);
+        if(dbAdapter.deleteMessage(message.get(position).id)) {
             System.out.println("Delete message success");
             message.remove(position);
 
@@ -430,9 +444,11 @@ public class MessagingActivity extends Activity {
                 String phoneNumber = intent.getStringExtra("phonenumber");
                 byte[] publicKey = intent.getByteArrayExtra("publickey");
                 String name = intent.getStringExtra("name");
+                long insertId = intent.getLongExtra("insertid", 0);
 
                 if(String.valueOf(friendId).equals(String.valueOf(id))) {
                     final Message newMessage = new Message(message, friendName, date, time, "", 1);
+                    newMessage.id = insertId;
 
                     runOnUiThread(new Runnable() {
 

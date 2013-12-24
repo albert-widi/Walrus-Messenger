@@ -138,6 +138,7 @@ public class GCMIntentService extends IntentService {
             messagingIntent.putExtra("publickey", friendPublicKey);
             messagingIntent.putExtra("date", date);
             messagingIntent.putExtra("time", time);
+            messagingIntent.putExtra("insertid", insertId);
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messagingIntent);
         }
         else {
