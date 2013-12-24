@@ -268,6 +268,7 @@ public class MessagingActivity extends Activity {
 
                 //save message to db
                 insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, userName, messageToSend.text, messageToSend.date, messageToSend.time, "SENT", "2");
+                System.out.println("Send insert id : " + insertId);
                 if(insertId != -1) {
                     messageToSend.id = insertId;
                     System.out.println("Processing messing activity : Save message success");

@@ -11,8 +11,10 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -150,9 +152,50 @@ public class ChatActivity extends Activity {
     }
 
     @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.chat_listview, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.action_delete_thread:
+                deleteChatThread(info.position);
+                return true;
+
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
+
+    @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         System.out.println("On create post chat activity");
+    }
+
+    private void deleteChatThread(int position) {
+        DbAdapter dbAdapter = new DbAdapter(getApplicationContext());
+        System.out.println("Delete thread id : " + messageArrayList.get(position).id);
+        if(dbAdapter.deleteChatThread(messageArrayList.get(position).id)) {
+            System.out.println("Delete thread success");
+            messageArrayList.remove(position);
+
+            runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    // TODO Auto-generated method stub
+                    fmla.notifyDataSetChanged();
+                }
+            });
+        }
+        else {
+            System.out.println("Delete thread failed");
+        }
     }
 
     private void loadMessageListFromDB() {
@@ -257,6 +300,7 @@ public class ChatActivity extends Activity {
         fmla = new FriendMessageListAdapter(context, messageArrayList);
         messageListView = (ListView) findViewById(R.id.friends_message_listview);
         messageListView.setAdapter(fmla);
+        registerForContextMenu(messageListView);
 
         messageListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

@@ -362,6 +362,19 @@ public class DbAdapter {
         return cursor;
     }
 
+    public boolean deleteChatThread(int friendId) {
+        openConnection();
+        long deleteIdThread = db.delete(DbHelper.TABLE_CHAT_THREAD, DbHelper.COLUMN_FRIEND_THREAD_ID + " = " + friendId, null);
+        long deleteIdChat = db.delete(DbHelper.TABLE_MESSAGE_HISTORY, DbHelper.COLUMN_MESSAGE_WITH_ID + " = " + friendId, null);
+        closeConnection();
+
+        if(deleteIdThread == -1 || deleteIdChat == -1) {
+            return false;
+        }
+
+        return true;
+    }
+
     public boolean databaseExists() {
         File database = appContext.getDatabasePath(DbHelper.DATABASE_NAME);
         return database.exists();
