@@ -169,10 +169,10 @@ public class ChatActivity extends Activity {
             @Override
             protected Object doInBackground(Object[] params) {
 
-                Cursor friendMessageCursor = dbAdapter.getWhoMessage();
+                Cursor friendMessageCursor = dbAdapter.getChatThread();
                 if(friendMessageCursor.getCount() > 0) {
                     while(friendMessageCursor.moveToNext()) {
-                        friendId = friendMessageCursor.getInt(friendMessageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_WITH_ID));
+                        friendId = friendMessageCursor.getInt(friendMessageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_THREAD_ID));
                         Cursor friendDataCursor = dbAdapter.getFriendInfo(Integer.valueOf(friendId));
 
                         if(friendDataCursor.getCount() > 0) {

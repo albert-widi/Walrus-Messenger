@@ -110,7 +110,7 @@ public class GCMIntentService extends IntentService {
         }
 
         //date-time
-        String date = gCalendar.get(Calendar.DATE) + "-" + gCalendar.get(Calendar.MONTH) + "-" + gCalendar.get(Calendar.YEAR) + " /";
+        String date = gCalendar.get(Calendar.DATE) + "-" + gCalendar.get(Calendar.MONTH) + "-" + gCalendar.get(Calendar.YEAR);
         String time = gCalendar.get(Calendar.HOUR) + ":" + gCalendar.get(Calendar.MINUTE);
 
         String originalMessage = encryptionUtil.decryptMessage(message, messageKey, messageHash, getApplicationContext());

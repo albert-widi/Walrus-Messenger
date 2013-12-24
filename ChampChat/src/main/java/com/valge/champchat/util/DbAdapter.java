@@ -335,7 +335,7 @@ public class DbAdapter {
         Cursor cursor;
         cursor = db.query(DbHelper.TABLE_CHAT_THREAD,
                 columns,
-                DbHelper.COLUMN_FRIEND_ID + " = ?",
+                DbHelper.COLUMN_FRIEND_THREAD_ID + " = ?",
                 selectionArg, null, null, DbHelper.COLUMN_ID);
 
         if(cursor.getCount() > 0) {
@@ -445,6 +445,7 @@ public class DbAdapter {
                 COLUMN_BLOCKED_ID + " NUMBER NOT NULL);";
 
         public static final String TABLE_CREATE_CHAT_THREAD = "CREATE TABLE " + TABLE_CHAT_THREAD + " (" +
+                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_FRIEND_THREAD_ID + " NUMBER NOT NULL);";
 
 
@@ -460,6 +461,8 @@ public class DbAdapter {
                 sqLiteDatabase.execSQL(TABLE_CREATE_USERDAT);
                 sqLiteDatabase.execSQL(TABLE_CREATE_FRIEND_LIST);
                 sqLiteDatabase.execSQL(TABLE_CREATE_MESSAGE_HISTORY);
+                sqLiteDatabase.execSQL(TABLE_CREATE_ID_BLOCK);
+                sqLiteDatabase.execSQL(TABLE_CREATE_CHAT_THREAD);
             }
             catch (Exception e) {
                 e.printStackTrace();
