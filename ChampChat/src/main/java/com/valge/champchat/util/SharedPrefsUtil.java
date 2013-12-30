@@ -24,6 +24,12 @@ public class SharedPrefsUtil {
 
     //receiver
     public static final String KEY_NOTIFICATION_MODE = "NOTIFICATIONMODE";
+    public static final String KEY_TESTER_MODE = "TESTERMODE";
+
+    //settings
+    public static final String KEY_HISTORY = "HISTORY";
+    public static final String KEY_SOUND_NOTIFICATION = "NOTIFSOUND";
+    public static final String KEY_SOUND_MESSAGE = "MESSAGESOUND";
 
     private Context context;
 
@@ -101,5 +107,91 @@ public class SharedPrefsUtil {
             System.out.println("This is receive mode");
         }
         return isNotifMode;
+    }
+
+    public void setToTesterModeOn() {
+        System.out.println("Set to tester mode");
+        SharedPreferences sprefs = context.getSharedPreferences(SharedPrefsUtil.PREFS_NAME, context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sprefs.edit();
+        editor.putBoolean(SharedPrefsUtil.KEY_TESTER_MODE, true);
+        editor.commit();
+    }
+
+    public void setTesterModeOff() {
+        System.out.println("Set to non tester mode");
+        SharedPreferences sprefs = context.getSharedPreferences(SharedPrefsUtil.PREFS_NAME, context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sprefs.edit();
+        editor.putBoolean(SharedPrefsUtil.KEY_TESTER_MODE, false);
+        editor.commit();
+    }
+
+    public boolean isTesterMode() {
+        SharedPreferences sprefs = context.getSharedPreferences(SharedPrefsUtil.PREFS_NAME, context.MODE_PRIVATE);
+        boolean isTesterMode = sprefs.getBoolean(SharedPrefsUtil.KEY_TESTER_MODE, true);
+
+        return isTesterMode;
+    }
+
+    public void setHistoryOn() {
+        SharedPreferences sprefs = context.getSharedPreferences(SharedPrefsUtil.PREFS_NAME, context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sprefs.edit();
+        editor.putBoolean(SharedPrefsUtil.KEY_HISTORY, true);
+        editor.commit();
+    }
+
+    public void setHistoryOff() {
+        SharedPreferences sprefs = context.getSharedPreferences(SharedPrefsUtil.PREFS_NAME, context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sprefs.edit();
+        editor.putBoolean(SharedPrefsUtil.KEY_HISTORY, false);
+        editor.commit();
+    }
+
+    public boolean isMessageHistoryOn() {
+        SharedPreferences sprefs = context.getSharedPreferences(SharedPrefsUtil.PREFS_NAME, context.MODE_PRIVATE);
+        boolean status = sprefs.getBoolean(SharedPrefsUtil.KEY_HISTORY, true);
+
+        return status;
+    }
+
+    public void setNotificationSoundOn() {
+        SharedPreferences sprefs = context.getSharedPreferences(SharedPrefsUtil.PREFS_NAME, context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sprefs.edit();
+        editor.putBoolean(SharedPrefsUtil.KEY_SOUND_NOTIFICATION, true);
+        editor.commit();
+    }
+
+    public void setNotificationSoundOff() {
+        SharedPreferences sprefs = context.getSharedPreferences(SharedPrefsUtil.PREFS_NAME, context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sprefs.edit();
+        editor.putBoolean(SharedPrefsUtil.KEY_SOUND_NOTIFICATION, false);
+        editor.commit();
+    }
+
+    public boolean isNotificationSoundOn() {
+        SharedPreferences sprefs = context.getSharedPreferences(SharedPrefsUtil.PREFS_NAME, context.MODE_PRIVATE);
+        boolean status = sprefs.getBoolean(SharedPrefsUtil.KEY_SOUND_NOTIFICATION, true);
+
+        return status;
+    }
+
+    public void setMessagingSoundOn() {
+        SharedPreferences sprefs = context.getSharedPreferences(SharedPrefsUtil.PREFS_NAME, context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sprefs.edit();
+        editor.putBoolean(SharedPrefsUtil.KEY_SOUND_MESSAGE, true);
+        editor.commit();
+    }
+
+    public void setMessagingSoundOff() {
+        SharedPreferences sprefs = context.getSharedPreferences(SharedPrefsUtil.PREFS_NAME, context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sprefs.edit();
+        editor.putBoolean(SharedPrefsUtil.KEY_SOUND_MESSAGE, false);
+        editor.commit();
+    }
+
+    public boolean isMessagingSoundOn() {
+        SharedPreferences sprefs = context.getSharedPreferences(SharedPrefsUtil.PREFS_NAME, context.MODE_PRIVATE);
+        boolean status = sprefs.getBoolean(SharedPrefsUtil.KEY_SOUND_MESSAGE, true);
+
+        return status;
     }
 }

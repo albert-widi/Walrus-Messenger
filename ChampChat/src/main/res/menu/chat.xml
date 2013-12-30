@@ -24,4 +24,9 @@
         android:title="@string/action_about"
         android:orderInCategory="100"
         android:showAsAction="never" />
+
+    <item android:id="@+id/action_tester_mode"
+        android:title="@string/action_tester"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
 </menu>

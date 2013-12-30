@@ -8,9 +8,36 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.valge.champchat.SettingsActivity$PlaceholderFragment">
 
-    <TextView
-        android:text="@string/hello_world"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                    <CheckBox
+                        android:id="@+id/settings_message_history"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Message History"/>
+
+                    <CheckBox
+                        android:id="@+id/settings_notification_sound"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/settings_message_history"
+                        android:text="Notification Sound"/>
+
+                    <CheckBox
+                        android:id="@+id/settings_messaging_sound"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/settings_notification_sound"
+                        android:text="Messaging Sound"/>
+
+                </RelativeLayout>
+
+        </FrameLayout>
 
 </RelativeLayout>

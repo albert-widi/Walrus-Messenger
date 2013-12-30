@@ -126,11 +126,17 @@ public class ChatActivity extends Activity {
             startActivity(intent);
             return true;
         }
+        else if(id == R.id.action_tester_mode) {
+            Intent intent = new Intent(this, TesterActivity.class);
+            startActivity(intent);
+            return true;
+        }
         else if(id == R.id.menu_new_message) {
             Intent intent = new Intent(this, FriendsActivity.class);
             intent.putExtra(IntentExtrasUtil.XTRAS_USER_NAME, userName);
             intent.putExtra(IntentExtrasUtil.XTRAS_USER_PRIVATE_KEY, privateKey);
             startActivity(intent);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }

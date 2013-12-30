@@ -33,4 +33,23 @@ public class ActivityLocationSharedPrefs {
         }
         return false;
     }
+
+    public void saveLastActivityToTester() {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(SharedPrefsUtil.KEY_TESTER_MODE, true);
+        editor.commit();
+    }
+
+    public void saveLastActivityToNonTester() {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(SharedPrefsUtil.KEY_TESTER_MODE, false);
+        editor.commit();
+    }
+
+    public boolean isTesterActivityActive() {
+        if(prefs.getBoolean(SharedPrefsUtil.KEY_TESTER_MODE, false)) {
+            return true;
+        }
+        return false;
+    }
 }

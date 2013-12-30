@@ -25,50 +25,53 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-
-        <service android:name="com.valge.champchat.gcm_package.GCMIntentService"></service>
+        <service android:name="com.valge.champchat.gcm_package.GCMIntentService" />
 
         <receiver
-            android:name=".gcm_package.GCMBroadcastReceiver"
+            android:name="com.valge.champchat.gcm_package.GCMBroadcastReceiver"
             android:exported="true"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
                 <category android:name="com.valge.champ" />
             </intent-filter>
         </receiver>
 
-        <activity
-            android:name="com.valge.champchat.ChatActivity" >
+        <activity android:name="com.valge.champchat.ChatActivity"
+                  android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable_contacts" />
         </activity>
-
         <activity
             android:name="com.valge.champchat.AboutActivity"
             android:label="@string/title_activity_about"
-            android:parentActivityName="com.valge.champchat.ChatActivity">
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.valge.champchat.ChatActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.valge.champchat.ChatActivity"/>
+                android:value="com.valge.champchat.ChatActivity" />
         </activity>
         <activity
             android:name="com.valge.champchat.ApplicationActivationActivity"
-            android:label="@string/title_activity_application_activation" >
+            android:label="@string/title_activity_application_activation"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name="com.valge.champchat.FriendsActivity"
             android:label="@string/title_activity_friends"
-            android:parentActivityName="com.valge.champchat.ChatActivity">
+            android:parentActivityName="com.valge.champchat.ChatActivity"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.valge.champchat.ChatActivity"/>
+                android:value="com.valge.champchat.ChatActivity" />
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable_contacts" />
@@ -76,26 +79,39 @@
         <activity
             android:name="com.valge.champchat.MessagingActivity"
             android:label="@string/title_activity_messaging"
-            android:parentActivityName="com.valge.champchat.ChatActivity">
+            android:parentActivityName="com.valge.champchat.ChatActivity"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.valge.champchat.ChatActivity"/>
+                android:value="com.valge.champchat.ChatActivity" />
         </activity>
         <activity
             android:name="com.valge.champchat.PhoneNumberRegistrationActivity"
-            android:label="@string/title_activity_phone_number_registration" >
+            android:label="@string/title_activity_phone_number_registration"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name="com.valge.champchat.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName="com.valge.champchat.ChatActivity">
+            android:parentActivityName="com.valge.champchat.ChatActivity"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.valge.champchat.ChatActivity"/>
+                android:value="com.valge.champchat.ChatActivity" />
         </activity>
         <activity
             android:name="com.valge.champchat.UserDataRegistrationActivity"
-            android:label="@string/title_activity_user_data_registration" >
+            android:label="@string/title_activity_user_data_registration"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name="com.valge.champchat.TesterActivity"
+            android:label="@string/title_activity_tester"
+            android:parentActivityName="com.valge.champchat.ChatActivity"
+            android:screenOrientation="portrait" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.valge.champchat.ChatActivity" />
         </activity>
     </application>
 

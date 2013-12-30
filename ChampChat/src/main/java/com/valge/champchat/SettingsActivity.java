@@ -5,12 +5,13 @@ import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 
 import com.valge.champchat.util.ActivityLocationSharedPrefs;
+import com.valge.champchat.util.SharedPrefsUtil;
 
 public class SettingsActivity extends Activity {
 
@@ -29,27 +30,6 @@ public class SettingsActivity extends Activity {
         activityLocationSharedPrefs.saveLastActivityToNonChat();
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.settings, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -64,6 +44,70 @@ public class SettingsActivity extends Activity {
             View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
             return rootView;
         }
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        final SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(getApplicationContext());
+        CheckBox historyCheckBox = (CheckBox) findViewById(R.id.settings_message_history);
+        CheckBox notifSoundCheckBox = (CheckBox) findViewById(R.id.settings_notification_sound);
+        CheckBox messageSoundCheckBox = (CheckBox) findViewById(R.id.settings_messaging_sound);
+
+        if(sharedPrefsUtil.isMessageHistoryOn()) {
+            historyCheckBox.setChecked(true);
+        }
+        else {
+            historyCheckBox.setChecked(false);
+        }
+        if(sharedPrefsUtil.isNotificationSoundOn()) {
+            notifSoundCheckBox.setChecked(true);
+        }
+        else {
+            notifSoundCheckBox.setChecked(false);
+        }
+        if(sharedPrefsUtil.isMessagingSoundOn()) {
+            messageSoundCheckBox.setChecked(true);
+        }
+        else {
+            messageSoundCheckBox.setChecked(false);
+        }
+
+        historyCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    sharedPrefsUtil.setHistoryOn();
+                }
+                else {
+                    sharedPrefsUtil.setHistoryOff();
+                }
+            }
+        });
+
+        notifSoundCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    sharedPrefsUtil.setNotificationSoundOn();
+                }
+                else {
+                    sharedPrefsUtil.setNotificationSoundOff();
+                }
+            }
+        });
+
+        messageSoundCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    sharedPrefsUtil.setMessagingSoundOn();
+                }
+                else {
+                    sharedPrefsUtil.setMessagingSoundOff();
+                }
+            }
+        });
     }
 
     @Override

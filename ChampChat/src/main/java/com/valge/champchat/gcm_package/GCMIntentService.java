@@ -73,13 +73,14 @@ public class GCMIntentService extends IntentService {
     private void processIncomingMessage(Intent intent) {
         System.out.println("Broadcast Receiver: Get data from GCM");
         boolean friendExists = false;
+        boolean friendFound = false;
         String message = intent.getStringExtra("message");
         String messageKey = intent.getStringExtra("key");
         String messageHash = intent.getStringExtra("hash");
         int friendId = Integer.parseInt(intent.getStringExtra("whosent"));
-        String friendName = "";
+        String friendName = " ";
         byte[] friendPublicKey = null;
-        String friendPhoneNumber = "";
+        String friendPhoneNumber = " ";
 
         //debug
         System.out.println("Broadcast Receiver: Data from GCM:");
@@ -96,6 +97,7 @@ public class GCMIntentService extends IntentService {
 
         //load friend info
         Cursor friendDataCursor = asyncDbAdapter.getFriendInfo(friendId);
+        SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(getApplicationContext());
 
         if(friendDataCursor.getCount() > 0) {
             friendExists = true;
@@ -105,8 +107,11 @@ public class GCMIntentService extends IntentService {
             friendPhoneNumber = friendDataCursor.getString(friendDataCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PHONE_NUMBER));
         }
         else {
-            //disable message coming-in from unknown source for now
-            return;
+            //disable message coming-in from unknown source
+            //if tester mode active, application can receive all message delivered from server
+            if(!sharedPrefsUtil.isTesterMode()) {
+                return;
+            }
         }
 
         //date-time
@@ -117,20 +122,35 @@ public class GCMIntentService extends IntentService {
         System.out.println("Process Message: Original Message = " + originalMessage);
 
         //save message to db
-        long insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, friendName, originalMessage, date, time, "", "1");
-        System.out.println("Receive insert id : " + insertId);
-        if(insertId != -1) {
-            System.out.println("Processing chat activity : Save message success");
-        }
-        else {
-            System.out.println("Processing chat activity : Save message failed");
+        long insertId = 0;
+        if(friendExists) {
+            insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, friendName, originalMessage, date, time, "", "1");
+            System.out.println("Receive insert id : " + insertId);
+            if(insertId != -1) {
+                System.out.println("Processing chat activity : Save message success");
+            }
+            else {
+                System.out.println("Processing chat activity : Save message failed");
+            }
+
+            //save chat thread
+            asyncDbAdapter.saveChatThread(friendId);
         }
 
-        //save chat thread
-        asyncDbAdapter.saveChatThread(friendId);
-
-        SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(getApplicationContext());
-        if(!sharedPrefsUtil.isNotificationModeOn()) {
+        if(sharedPrefsUtil.isTesterMode()) {
+            Intent messagingIntent = new Intent("messagingtester");
+            messagingIntent.putExtra("message", originalMessage);
+            if(friendName.equals(friendPhoneNumber)) {
+                messagingIntent.putExtra("name", friendId);
+            }
+            else {
+                messagingIntent.putExtra("name", friendName);
+            }
+            messagingIntent.putExtra("date", date);
+            messagingIntent.putExtra("time", time);
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messagingIntent);
+        }
+        else if(!sharedPrefsUtil.isNotificationModeOn()) {
             Intent messagingIntent = new Intent("messagingactiv");
             messagingIntent.putExtra("message", originalMessage);
             messagingIntent.putExtra("id", friendId);

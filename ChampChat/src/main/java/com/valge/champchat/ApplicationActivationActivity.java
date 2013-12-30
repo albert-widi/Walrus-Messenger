@@ -112,6 +112,10 @@ public class ApplicationActivationActivity extends Activity {
                 editor.putString(SharedPrefsUtil.KEY_PHONE_NUMBER, phoneNumber);
                 editor.putString(SharedPrefsUtil.PROPERTY_REG_ID, regid);
                 editor.putString(SharedPrefsUtil.KEY_SECRET_KEY, secretKey);
+                editor.putBoolean(SharedPrefsUtil.KEY_TESTER_MODE, false);
+                editor.putBoolean(SharedPrefsUtil.KEY_HISTORY, true);
+                editor.putBoolean(SharedPrefsUtil.KEY_SOUND_NOTIFICATION, true);
+                editor.putBoolean(SharedPrefsUtil.KEY_SOUND_MESSAGE, true);
                 editor.commit();
                 return "";
             }
