@@ -52,6 +52,7 @@ public class MessagingActivity extends Activity {
     GCMBroadcastReceiver broadCastReceiver;
 
     MessagingAdapter messagingAdapater;
+    SharedPrefsUtil sharedPrefsUtil;
 
     //user
     private String userName;
@@ -104,7 +105,7 @@ public class MessagingActivity extends Activity {
 
         System.out.println("Friend ID : " + friendId);
 
-        SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(context);
+        sharedPrefsUtil = new SharedPrefsUtil(context);
         sharedPrefsUtil.loadApplicationPrefs();
         userName = sharedPrefsUtil.userName;
         userId = sharedPrefsUtil.userId;
@@ -267,14 +268,16 @@ public class MessagingActivity extends Activity {
                 });
 
                 //save message to db
-                insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, userName, messageToSend.text, messageToSend.date, messageToSend.time, "SENT", "2");
-                System.out.println("Send insert id : " + insertId);
-                if(insertId != -1) {
-                    messageToSend.id = insertId;
-                    System.out.println("Processing messing activity : Save message success");
-                }
-                else {
-                    System.out.println("Processing messaging activity : Save message failed");
+                if(sharedPrefsUtil.isMessageHistoryOn()) {
+                    insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, userName, messageToSend.text, messageToSend.date, messageToSend.time, "SENT", "2");
+                    System.out.println("Send insert id : " + insertId);
+                    if(insertId != -1) {
+                        messageToSend.id = insertId;
+                        System.out.println("Processing messing activity : Save message success");
+                    }
+                    else {
+                        System.out.println("Processing messaging activity : Save message failed");
+                    }
                 }
 
                 System.out.println("Send Message To Backend : Encrypt message");

@@ -302,6 +302,10 @@ public class DbAdapter {
     }
 
     public boolean deleteMessage(long id) {
+        if(id == 0) {
+            return true;
+        }
+
         openConnection();
         long deleteId = db.delete(DbHelper.TABLE_MESSAGE_HISTORY, DbHelper.COLUMN_ID + " = " + id, null);
         closeConnection();

@@ -124,17 +124,19 @@ public class GCMIntentService extends IntentService {
         //save message to db
         long insertId = 0;
         if(friendExists) {
-            insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, friendName, originalMessage, date, time, "", "1");
-            System.out.println("Receive insert id : " + insertId);
-            if(insertId != -1) {
-                System.out.println("Processing chat activity : Save message success");
-            }
-            else {
-                System.out.println("Processing chat activity : Save message failed");
-            }
+            if(sharedPrefsUtil.isMessageHistoryOn()) {
+                insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, friendName, originalMessage, date, time, "", "1");
+                System.out.println("Receive insert id : " + insertId);
+                if(insertId != -1) {
+                    System.out.println("Processing chat activity : Save message success");
+                }
+                else {
+                    System.out.println("Processing chat activity : Save message failed");
+                }
 
-            //save chat thread
-            asyncDbAdapter.saveChatThread(friendId);
+                //save chat thread
+                asyncDbAdapter.saveChatThread(friendId);
+            }
         }
 
         if(sharedPrefsUtil.isTesterMode()) {
