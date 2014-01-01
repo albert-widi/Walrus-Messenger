@@ -489,5 +489,9 @@ public class MessagingActivity extends Activity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(onResumeReceiver);
         SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(getApplicationContext());
         sharedPrefsUtil.setToNotificationMode();
+
+        if(!sharedPrefsUtil.isMessageHistoryOn()) {
+            deleteAllChat();
+        }
     }
 }

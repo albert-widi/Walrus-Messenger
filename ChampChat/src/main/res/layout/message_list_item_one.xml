@@ -59,7 +59,7 @@
                         android:id="@+id/message_adapter_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="10dp"
+                        android:textSize="13dp"
                         android:text="20/12/2013"/>
 
                     <TextView
@@ -67,7 +67,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/message_adapter_date"
-                        android:textSize="10dp"
+                        android:textSize="13dp"
                         android:text="20:00PM"/>
 
                 </RelativeLayout>

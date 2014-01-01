@@ -174,7 +174,7 @@ public class TesterActivity extends Activity {
 
             }
         };
-        LocalBroadcastManager.getInstance(this).registerReceiver(testerReceiver, new IntentFilter("messagingactiv"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(testerReceiver, new IntentFilter("messagingtester"));
     }
 
     @Override
