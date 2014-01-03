@@ -2,12 +2,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.valge.champchat.FriendsActivity" >
 
-    <item
+    <!--<item
         android:id="@+id/menu_search"
         android:title="@string/menu_search"
         android:icon="@drawable/action_search"
         android:showAsAction="ifRoom|collapseActionView"
-        android:actionViewClass="android.widget.SearchView"/>
+        android:actionViewClass="android.widget.SearchView"/>-->
 
     <item
         android:id="@+id/menu_refresh"

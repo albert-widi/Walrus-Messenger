@@ -2,7 +2,6 @@ package com.valge.champchat;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.SearchView;
 
 import com.valge.champchat.httppost.HttpPostModule;
 import com.valge.champchat.list_view_adapter.FriendListAdapter;
@@ -75,12 +73,12 @@ public class FriendsActivity extends Activity {
         
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.friends, menu);
-        SearchManager searchManager =
+        /*SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView =
                 (SearchView) menu.findItem(R.id.menu_search).getActionView();
         searchView.setSearchableInfo(
-                searchManager.getSearchableInfo(getComponentName()));
+                searchManager.getSearchableInfo(getComponentName()));*/
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -267,7 +265,7 @@ public class FriendsActivity extends Activity {
                                 friendArrayList.get(i).name = name;
                                 friendArrayList.get(i).publicKey = decodedKey;
 
-                                if(dbAdapter.updateFriend(name, phoneNumber, gcmId, decodedKey)) {
+                                if(dbAdapter.updateFriend(name, phoneNumber, decodedKey)) {
                                     System.out.println("Refresh friend list: Friend update success");
                                 }
                                 else {
@@ -293,7 +291,7 @@ public class FriendsActivity extends Activity {
                         });
 
                         //saving friend to db
-                        if(!dbAdapter.saveFriend(id, name, phoneNumber, gcmId, decodedKey)) {
+                        if(!dbAdapter.saveFriend(id, name, phoneNumber, decodedKey)) {
                             System.out.println("Refresh friend list: Save friend to db failed, name :" + name);
                         }
                         else {
@@ -330,7 +328,6 @@ public class FriendsActivity extends Activity {
                         System.out.println("Name : " + name);
                         String phoneNumber = cursor.getString(cursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PHONE_NUMBER));
                         //phoneNumber = dbAdapter.unescapeSqlString(phoneNumber);
-                        String gcmId = cursor.getString(cursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_GCM_ID));
                         //gcmId = dbAdapter.unescapeSqlString(gcmId);
                         byte[] key = cursor.getBlob(cursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_FRIEND_PUBLIC_KEY));
 

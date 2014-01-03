@@ -240,7 +240,7 @@ public class MessagingActivity extends Activity {
     }
 
     private String getCurrentDate() {
-        return gCalendar.get(Calendar.DATE) + "-" + gCalendar.get(Calendar.MONTH) + "-" + gCalendar.get(Calendar.YEAR);
+        return gCalendar.get(Calendar.DATE) + "-" + gCalendar.get(Calendar.MONTH)+1 + "-" + gCalendar.get(Calendar.YEAR);
     }
 
     private String getCurrentTime() {
@@ -270,6 +270,7 @@ public class MessagingActivity extends Activity {
                 //save message to db
                 if(sharedPrefsUtil.isMessageHistoryOn()) {
                     insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, userName, messageToSend.text, messageToSend.date, messageToSend.time, "SENT", "2");
+                    asyncDbAdapter.saveChatThread(friendId);
                     System.out.println("Send insert id : " + insertId);
                     if(insertId != -1) {
                         messageToSend.id = insertId;

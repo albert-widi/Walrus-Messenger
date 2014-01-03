@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.ContactsContract;
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -17,28 +18,18 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.valge.champchat.gcm_package.GCMBroadcastReceiver;
+import com.valge.champchat.httppost.HttpPostModule;
 import com.valge.champchat.util.DbAdapter;
 import com.valge.champchat.util.HttpPostUtil;
 import com.valge.champchat.util.IntentExtrasUtil;
 import com.valge.champchat.util.SharedPrefsUtil;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
-import java.security.KeyFactory;
-import java.security.PublicKey;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 public class ApplicationActivationActivity extends Activity {
     //db
@@ -54,7 +45,7 @@ public class ApplicationActivationActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_application_activation);
-
+        this.setTitle("Activating Application");
         if (savedInstanceState == null) {
             getFragmentManager().beginTransaction()
                     .add(R.id.container, new PlaceholderFragment())
@@ -84,8 +75,19 @@ public class ApplicationActivationActivity extends Activity {
         imActivationStatus = (TextView) findViewById(R.id.activation_status);
         imActivationStatus.setText("Set Application Properties");
         saveApplicationPreferences();
-        imActivationStatus.setText("Finding Friends From Contacts...");
-        getFriendList();
+        //imActivationStatus.setText("Finding Friends From Contacts...");
+        //getFriendList();
+        imActivationStatus.setText("Application activation complete");
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                // TODO Auto-generated method stub
+                Intent intent = new Intent(ApplicationActivationActivity.this, ChatActivity.class);
+                startActivity(intent);
+                ApplicationActivationActivity.this.finish();
+            }
+        }, 5000);
     }
 
     private void saveApplicationPreferences() {
@@ -144,41 +146,7 @@ public class ApplicationActivationActivity extends Activity {
             @Override
             protected Object doInBackground(Object[] params) {
                 //Toast.makeText(MainActivity.this, "Refreshing friend list", Toast.LENGTH_SHORT).show();
-                String friendList = "";
-                ContentResolver cr = getContentResolver();
-                Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null,
-                        null, null, null);
-
-                if(cur.getCount() >0) {
-                    while(cur.moveToNext()) {
-                        String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
-
-                        if (Integer.parseInt(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-                            Cursor pCur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                                    null,
-                                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID +
-                                            " = ?", new String[] { id },
-                                    null);
-
-                            while(pCur.moveToNext()) {
-                                String name = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                                String phoneNo =   pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                                friendList += phoneNo + ";";
-                                System.out.println("Name : " + name + "Number : " + phoneNo);
-                            }
-
-                            pCur.close();
-                        }
-                    }
-
-                    int stringLength = friendList.length();
-                    friendList = friendList.substring(0, stringLength-1);
-                }
-                else {
-                    //Toast.makeText(context, text, duration)
-                }
-
-                cur.close();
+                String friendList = getPhoneNumberFromContacts();
 
                 //do http post
                 final HttpClient httpClient = new DefaultHttpClient();
@@ -186,23 +154,13 @@ public class ApplicationActivationActivity extends Activity {
                 JSONObject json = new JSONObject();
 
                 try {
-                    json.put("action", "getFriendList");
-                    json.put("friendlist", friendList);
+                    System.out.println("Friend list : "  + friendList);
+                    String postAction = "getFriendList";
+                    String[] postData = {friendList};
+                    String[] postDataName = {"friendlist"};
 
-                    //System.out.println("Json : " + json.toString());
-
-                    List<NameValuePair> pairs = new ArrayList<NameValuePair>(4);
-                    pairs.add(new BasicNameValuePair("data", json.toString()));
-
-                    httpPost.setEntity(new UrlEncodedFormEntity(pairs));
-
-                    HttpResponse response = httpClient.execute(httpPost);
-                    HttpEntity resEntity = response.getEntity();
-
-                    stringResponse = EntityUtils.toString(resEntity);
-                    //System.out.println("Response : " + stringResponse);
-                    jsonResponse = new JSONObject(stringResponse);
-                    System.out.println("JSON : " + jsonResponse.toString());
+                    HttpPostModule httpPostModule = new HttpPostModule();
+                    jsonResponse = httpPostModule.echatHttpPost(postAction, postData, postDataName);
 
                     if(jsonResponse.getString("message").equalsIgnoreCase("FRIEND_SEARCH_SUCCESS")) {
                         System.out.println("eChat Application Activity: Friend search success");
@@ -220,21 +178,28 @@ public class ApplicationActivationActivity extends Activity {
                                 String name = splitedData[1];
                                 String phoneNumber = key;
                                 String gcmId = splitedData[2];
-                                byte[] decodedKey = Base64.decode(splitedData[3], Base64.DEFAULT);
-                                PublicKey tmpPublicKey = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(decodedKey));
+
+                                String publicKeyString = splitedData[3];
+                                byte[] decodedKey = Base64.decode(publicKeyString, Base64.DEFAULT);
+
 
                                 //debug
+                                System.out.println("eChat Application Activity: Friend ID = " + id);
                                 System.out.println("eChat Application Activity: Friend Name = " + name);
                                 System.out.println("eChat Application Activity: Phone Number = " + phoneNumber);
                                 System.out.println("eChat Application Activity: GCM ID = " + gcmId);
+                                System.out.println("eChat Application Activity: Friend Public Key = " + publicKeyString);
 
-                                //saving friend to db
-                                if(!dbAdapter.saveFriend(id, name, phoneNumber, gcmId, decodedKey)) {
-                                    System.out.println("Save friend to db failed, name :" + name);
+                                if(decodedKey == null) {
+                                    System.out.println("ini null coi");
+                                }
+                                /*/saving friend to db
+                                if(!dbAdapter.saveFriend(id, name, phoneNumber, decodedKey)) {
+                                    System.out.println("Refresh friend list: Save friend to db failed");
                                 }
                                 else {
-                                    System.out.println("Save to DB success, name : " + name);
-                                }
+                                    System.out.println("Refresh friend list : Save to db success");
+                                }*/
                             }
                         }
                     }
@@ -243,7 +208,7 @@ public class ApplicationActivationActivity extends Activity {
                     }
                 }
                 catch(Exception e) {
-
+                    e.printStackTrace();
                 }
 
                 System.out.println("Processing complete...");
@@ -254,7 +219,11 @@ public class ApplicationActivationActivity extends Activity {
                 imActivationStatus.setText("Setting receiver");
 
                 imActivationStatus.setText("Acitvation Success");
-                new Thread(new Runnable() {
+
+                Intent intent = new Intent(ApplicationActivationActivity.this, ChatActivity.class);
+                startActivity(intent);
+                ApplicationActivationActivity.this.finish();
+                /*new Thread(new Runnable() {
 
                     @Override
                     public void run() {
@@ -269,9 +238,53 @@ public class ApplicationActivationActivity extends Activity {
                             e.printStackTrace();
                         }
                     }
-                }).run();
+                }).run();*/
                 //go to main activity
             };
         }.execute(null, null, null);
+    }
+
+    private String getPhoneNumberFromContacts() {
+        String friendList = "";
+
+        ContentResolver cr = getContentResolver();
+        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null,
+                null, null, null);
+
+        System.out.println("Contacts lenght = " + cur.getCount());
+        if(cur.getCount() > 0) {
+            while(cur.moveToNext()) {
+                String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+
+                if (Integer.parseInt(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
+                    Cursor pCur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            null,
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID +
+                                    " = ?", new String[] { id },
+                            null);
+
+                    while(pCur.moveToNext()) {
+                        String name = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                        String phoneNo =   pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        phoneNo = phoneNo.replaceAll("-", "");
+                        phoneNo = phoneNo.replaceAll(" ", "");
+                        friendList += phoneNo + ";";
+                        System.out.println("Name : " + name + "Number : " + phoneNo);
+                    }
+
+                    pCur.close();
+                }
+            }
+
+            int stringLength = friendList.length();
+            System.out.println("Friend list length = " + stringLength);
+            friendList = friendList.substring(0, stringLength-1);
+            System.out.println("Friend list: " + friendList);
+        }
+        else {
+            //Toast.makeText(context, text, duration)
+        }
+        cur.close();
+        return friendList;
     }
 }
