@@ -360,7 +360,7 @@ public class DbAdapter {
         Cursor cursor = db.query(DbHelper.TABLE_CHAT_THREAD,
                 columns,
                 null,
-                null, null, null, DbHelper.COLUMN_TIMESTAMP_THREAD + " ASC", null);
+                null, null, null, DbHelper.COLUMN_TIMESTAMP_THREAD + " DESC", null);
 
         return cursor;
     }
@@ -464,6 +464,15 @@ public class DbAdapter {
                 COLUMN_FRIEND_THREAD_ID + " NUMBER NOT NULL, " +
                 COLUMN_TIMESTAMP_THREAD + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);";
 
+        private static final String TRIGGER_CREATE_UPDATE_THREAD_TIMESTAMP =
+                "CREATE TRIGGER update_time_trigger" +
+                        "  AFTER UPDATE ON " + TABLE_CHAT_THREAD + " FOR EACH ROW" +
+                        "  BEGIN " +
+                        "UPDATE " + TABLE_CHAT_THREAD +
+                        "  SET " + COLUMN_TIMESTAMP_THREAD + " = current_timestamp" +
+                        "  WHERE " + COLUMN_ID + " = old." + COLUMN_ID + ";" +
+                        "  END";
+
 
         public DbHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -479,6 +488,7 @@ public class DbAdapter {
                 sqLiteDatabase.execSQL(TABLE_CREATE_MESSAGE_HISTORY);
                 sqLiteDatabase.execSQL(TABLE_CREATE_ID_BLOCK);
                 sqLiteDatabase.execSQL(TABLE_CREATE_CHAT_THREAD);
+                sqLiteDatabase.execSQL(TRIGGER_CREATE_UPDATE_THREAD_TIMESTAMP);
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -493,6 +503,8 @@ public class DbAdapter {
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_USERDAT);
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_FRIEND_LIST);
             sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_MESSAGE_HISTORY);
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_ID_BLOCK);
+            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAT_THREAD);
             onCreate(sqLiteDatabase);
         }
     }
