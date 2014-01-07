@@ -174,7 +174,7 @@ public class ChatActivity extends Activity {
                 adb.setTitle("Delete Chat Thread");
 
                 adb
-                .setMessage("Message will also be deleted?")
+                .setMessage("Delete chat with " + messageArrayList.get(info.position).name)
                 .setCancelable(true)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
@@ -183,6 +183,7 @@ public class ChatActivity extends Activity {
                         deleteChatThread(info.position);
                     }
                 })
+
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 
                     @Override
@@ -285,8 +286,8 @@ public class ChatActivity extends Activity {
                             messageDate = messageCursor.getString(messageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_TIME_DATE));
                             messageTime = messageCursor.getString(messageCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_TIME_TIME));
 
-                            if(lastMessage.length() > 35) {
-                                lastMessage = lastMessage.substring(0, 32) + "...";
+                            if(lastMessage.length() > 25) {
+                                lastMessage = lastMessage.substring(0, 22) + "...";
                             }
 
                             System.out.println("Last message : " + lastMessage);
@@ -367,6 +368,10 @@ public class ChatActivity extends Activity {
                 String friendPhoneNumber = intent.getStringExtra("phonenumber");
                 String date = intent.getStringExtra("date");
                 String time = intent.getStringExtra("time");
+
+                if(message.length() > 25) {
+                    message = message.substring(0, 22) + "...";
+                }
 
                 //load friend information
                 boolean friendExists = false;

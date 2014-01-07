@@ -27,4 +27,8 @@ public class IntentExtrasUtil {
     public final static String XTRAS_NAME_USERNAME = "USERNAMEXTRAS";
     public final static String XTRAS_PHONENUMBER = "PHONENUMBERXTRAS";
     public final static String XTRAS_ACTION = "ACTIONXTRAS";
+
+    //contact details
+    public final static String XTRAS_CONTACT_DETAILS_NAME = "CONTACTNAME";
+    public final static String XTRAS_CONTACT_DETAILS_PHONE_NUMBER = "CONTACTPHONENUMBER";
 }

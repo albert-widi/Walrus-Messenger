@@ -8,8 +8,13 @@
         android:icon="@drawable/action_call"
         android:showAsAction="ifRoom"/>
 
+    <item android:id="@+id/action_contact_details"
+        android:title="Contact Details"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+
     <item android:id="@+id/action_delete_all_message"
-        android:title="Clear chat"
+        android:title="Clear Chat"
         android:orderInCategory="100"
         android:showAsAction="never" />
 </menu>

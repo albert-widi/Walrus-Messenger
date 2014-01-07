@@ -65,7 +65,6 @@ public class MessagingActivity extends Activity {
     private int friendId;
     private String friendName;
     private String friendPhoneNumber;
-    private String friendGcmId;
     byte[] friendPublicKey;
 
     //callendar
@@ -146,6 +145,15 @@ public class MessagingActivity extends Activity {
             case R.id.menu_action_call:
                 Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+friendPhoneNumber));
                 startActivity(callIntent);
+                return true;
+
+            case R.id.action_contact_details:
+                AlertDialog.Builder adbContactDetails = new AlertDialog.Builder(this);
+                adbContactDetails.setTitle("Contact Details:");
+                adbContactDetails
+                .setMessage(friendName + "\n" + friendPhoneNumber)
+                .setCancelable(true);
+                adbContactDetails.show();
                 return true;
 
             case R.id.action_delete_all_message:
@@ -274,7 +282,7 @@ public class MessagingActivity extends Activity {
     }
 
     private void sendMessageToBackend(String messageText, String date, String time) {
-        final Message messageToSend = new Message(messageText, userName, date, time, "SEND", 2);
+        final Message messageToSend = new Message(messageText, userName, date, time, "SENT", 2);
 
         new AsyncTask() {
             JSONObject jsonResponse = new JSONObject();
@@ -316,8 +324,16 @@ public class MessagingActivity extends Activity {
                 String[] postDataName = {"idsender", "idreceive", "message", "messagekey", "messagehash"};
 
                 System.out.println("Send Message To Backend : Send message to backend");
-                HttpPostModule httpPostModule = new HttpPostModule();
-                jsonResponse = httpPostModule.echatHttpPost(postAction, postData, postDataName);
+                try {
+                    HttpPostModule httpPostModule = new HttpPostModule();
+                    jsonResponse = httpPostModule.echatHttpPost(postAction, postData, postDataName);
+                }
+                catch(Exception e) {
+                    e.printStackTrace();
+                    messageToSend.status = "FAILED";
+                    asyncDbAdapter.updateMessage(insertId, "FAILED");
+                }
+
 
                 return "";
             }

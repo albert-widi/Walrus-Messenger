@@ -54,6 +54,7 @@ public class MessagingAdapter extends ArrayAdapter{
             msgView.from = (TextView) rowView.findViewById(R.id.message_adapter_from);
             msgView.date = (TextView) rowView.findViewById(R.id.message_adapter_date);
             msgView.time = (TextView) rowView.findViewById(R.id.message_adapter_time);
+            msgView.status = (TextView) rowView.findViewById(R.id.message_adapter_status);
 
             // Cache the view objects in the tag,
             // so they can be re-accessed later
@@ -70,6 +71,7 @@ public class MessagingAdapter extends ArrayAdapter{
             msgView.from.setText(message.get(position).from);
             msgView.date.setText(message.get(position).date);
             msgView.time.setText(message.get(position).time);
+            msgView.status.setText(message.get(position).status);
         }
         return rowView;
     }
@@ -79,5 +81,6 @@ public class MessagingAdapter extends ArrayAdapter{
         protected TextView from;
         protected TextView date;
         protected TextView time;
+        protected TextView status;
     }
 }

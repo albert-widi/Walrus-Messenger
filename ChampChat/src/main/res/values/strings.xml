@@ -23,5 +23,6 @@
     <string name="title_activity_register">Register</string>
     <string name="welcome_to_app">Welcome to Walrus Messengger!</string>
     <string name="title_activity_tester">TesterActivity</string>
+    <string name="title_activity_contact_details">ContactDetailsActivity</string>
 
 </resources>
