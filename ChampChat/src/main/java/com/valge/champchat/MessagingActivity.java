@@ -2,15 +2,18 @@ package com.valge.champchat;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -140,8 +143,31 @@ public class MessagingActivity extends Activity {
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         int id = item.getItemId();
         switch (id) {
+            case R.id.menu_action_call:
+                Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+friendPhoneNumber));
+                startActivity(callIntent);
+                return true;
+
             case R.id.action_delete_all_message:
-                deleteAllChat();
+                AlertDialog.Builder adb = new AlertDialog.Builder(this);
+                adb.setTitle("Clear Chat");
+
+                adb
+                .setMessage("All message will be deleted?")
+                .setCancelable(true)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        deleteAllChat();
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                adb.show();
                 return true;
 
             default:

@@ -244,6 +244,7 @@ public class FriendsActivity extends Activity {
                         System.out.println("Debug: friend phone number : " + friendArrayList.get(i).phoneNumber + " and " + phoneNumber);
 
                         if(friendArrayList.get(i).id == id) {
+                            friendExists = true;
                             System.out.println("Refresh friend list: Friend exists in database");
                             //debug
                             if(Arrays.equals(friendArrayList.get(i).publicKey, decodedKey)) {
@@ -256,7 +257,6 @@ public class FriendsActivity extends Activity {
                             //friend already exists
                             if(Arrays.equals(friendArrayList.get(i).publicKey, decodedKey)) {
                                 System.out.println("Refresh friend list: Friend need no update");
-                                friendExists = true;
                             }
                             //friend update
                             else {
@@ -272,6 +272,16 @@ public class FriendsActivity extends Activity {
                                     System.out.println("Refresh friend list: Friend update failed");
                                 }
                             }
+
+                            runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    // TODO Auto-generated method stub
+                                    fla.notifyDataSetChanged();
+                                }
+                            });
+
                             break;
                         }
                     }

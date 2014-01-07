@@ -1,9 +1,11 @@
 package com.valge.champchat;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
@@ -23,6 +25,7 @@ import android.widget.ListView;
 import com.valge.champchat.gcm_package.GCMBroadcastReceiver;
 import com.valge.champchat.list_view_adapter.FriendMessageListAdapter;
 import com.valge.champchat.util.ActivityLocationSharedPrefs;
+import com.valge.champchat.util.ChampNotification;
 import com.valge.champchat.util.DbAdapter;
 import com.valge.champchat.util.FriendMessage;
 import com.valge.champchat.util.IntentExtrasUtil;
@@ -164,10 +167,31 @@ public class ChatActivity extends Activity {
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        final AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case R.id.action_delete_thread:
-                deleteChatThread(info.position);
+                AlertDialog.Builder adb = new AlertDialog.Builder(this);
+                adb.setTitle("Delete Chat Thread");
+
+                adb
+                .setMessage("Message will also be deleted?")
+                .setCancelable(true)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // TODO Auto-generated method stub
+                        deleteChatThread(info.position);
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // TODO Auto-generated method stub
+                        dialog.cancel();
+                    }
+                });
+                adb.show();
                 return true;
 
             default:
@@ -380,6 +404,9 @@ public class ChatActivity extends Activity {
                         fmla.notifyDataSetChanged();
                     }
                 });
+
+                ChampNotification champNotification = new ChampNotification();
+                champNotification.setNotification(friendId, friendName, friendPhoneNumber, friendPublicKey, getApplicationContext());
             }
         };
         LocalBroadcastManager.getInstance(this).registerReceiver(onResumeReceiver, new IntentFilter("messagingactiv"));

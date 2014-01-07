@@ -17,6 +17,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.valge.champchat.ChatActivity;
 import com.valge.champchat.MessagingActivity;
 import com.valge.champchat.R;
+import com.valge.champchat.util.ChampNotification;
 import com.valge.champchat.util.DbAdapter;
 import com.valge.champchat.util.EncryptionUtil;
 import com.valge.champchat.util.IntentExtrasUtil;
@@ -165,7 +166,9 @@ public class GCMIntentService extends IntentService {
         }
         else {
             System.out.println("Sending notification");
-            setNotification(friendId, friendName, friendPhoneNumber, friendPublicKey);
+            ChampNotification champNotification = new ChampNotification();
+            champNotification.setNotification(friendId, friendName, friendPhoneNumber, friendPublicKey, getApplicationContext());
+            //setNotification(friendId, friendName, friendPhoneNumber, friendPublicKey);
         }
     }
 

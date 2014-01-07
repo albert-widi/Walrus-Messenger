@@ -259,9 +259,6 @@ public class UserDataRegistrationActivity extends Activity {
 
                         if(dbAdapter.registerUser(userId, phoneNumber, userName, regid, secretKey, privateKey.getEncoded())) {
                             activateApplication();
-                        	/*Intent intent = new Intent(UserDataRegistration.this, MainActivity.class);
-                        	startActivity(intent);
-                        	UserDataRegistration.this.finish();*/
                         }
                         else {
                             System.out.println("ERROR SAVE TO DB");
