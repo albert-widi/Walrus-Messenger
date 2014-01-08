@@ -76,8 +76,7 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/message_adapter_time"
                         android:textSize="10dp"
-                        android:textColor="@color/black"
-                        android:text="SEND"/>
+                        android:textColor="@color/black"/>
 
                 </RelativeLayout>
 

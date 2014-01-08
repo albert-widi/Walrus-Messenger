@@ -101,38 +101,45 @@ public class EncryptionUtil {
         }
 
         //check if message manipulated
-        try {
-            byte[] originalMessageBytes = originalMessage.getBytes("UTF-8");
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            digest.update(originalMessageBytes);
-            byte[] messageDigest = digest.digest();
+        if(originalMessage != "") {
+            try {
+                byte[] originalMessageBytes = originalMessage.getBytes("UTF-8");
+                MessageDigest digest = MessageDigest.getInstance("MD5");
+                digest.update(originalMessageBytes);
+                byte[] messageDigest = digest.digest();
 
-            StringBuffer hexString = new StringBuffer();
-            int digestLength = messageDigest.length;
-            for(int i = 0; i < digestLength; i++) {
-                String h = Integer.toHexString(0xff & messageDigest[i]);
-                while(h.length() < 2) {
-                    h = "0" + h;
+                StringBuffer hexString = new StringBuffer();
+                int digestLength = messageDigest.length;
+                for(int i = 0; i < digestLength; i++) {
+                    String h = Integer.toHexString(0xff & messageDigest[i]);
+                    while(h.length() < 2) {
+                        h = "0" + h;
+                    }
+                    hexString.append(h);
                 }
-                hexString.append(h);
-            }
-            String fixHexString = hexString.toString();
-            System.out.println("Orinal Hash : " + messageHash);
-            System.out.println("Current Hash : " + fixHexString);
+                String fixHexString = hexString.toString();
+                System.out.println("Orinal Hash : " + messageHash);
+                System.out.println("Current Hash : " + fixHexString);
 
-            //return originalMessage;
-            if(fixHexString.equals(messageHash)) {
-                return originalMessage;
-            }
-            else {
-                return "Message had been manipulated";
-            }
+                //return originalMessage;
+                if(fixHexString.equals(messageHash)) {
+                    return originalMessage;
+                }
+                else {
+                    return "Message had been manipulated";
+                }
 
-            //return originalMessage;
+                //return originalMessage;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        catch (Exception e) {
-            e.printStackTrace();
+        else {
+            originalMessage = "Cannot decrypt message";
+            return originalMessage;
         }
+
         return "";
     }
 
