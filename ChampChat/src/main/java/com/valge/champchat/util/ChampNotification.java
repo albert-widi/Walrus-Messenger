@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
@@ -21,6 +22,7 @@ public class ChampNotification {
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public void setNotification(int friendId, String friendName, String friendPhoneNumber, byte[] friendPublicKey, Context context) {
         System.out.println("Set notification from intentservice");
+        SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(context);
         Intent intent = new Intent(context, MessagingActivity.class);
         intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_USER_ID, friendId);
         intent.putExtra(IntentExtrasUtil.XTRAS_FRIEND_NAME, friendName);
@@ -49,5 +51,10 @@ public class ChampNotification {
         NotificationManager mNotificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(101, mBuilder.build());
+
+        if(sharedPrefsUtil.isNotificationSoundOn()) {
+            MediaPlayer mediaPlayer = MediaPlayer.create(context, R.raw.notif);
+            mediaPlayer.start();
+        }
     }
 }

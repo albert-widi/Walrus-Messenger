@@ -28,6 +28,7 @@ public class SettingsActivity extends Activity {
         Context context = getApplicationContext();
         ActivityLocationSharedPrefs activityLocationSharedPrefs = new ActivityLocationSharedPrefs(context);
         activityLocationSharedPrefs.saveLastActivityToNonChat();
+        setTitle("Settings");
     }
 
     /**

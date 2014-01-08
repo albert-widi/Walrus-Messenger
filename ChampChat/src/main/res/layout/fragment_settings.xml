@@ -16,25 +16,86 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                    <CheckBox
-                        android:id="@+id/settings_message_history"
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/settings_text_message_setting"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textSize="15dp"
+                        android:text="MESSAGE"/>
+
+                    <TextView
+                        android:id="@+id/settings_divider_message"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@+id/settings_text_message_setting"
+                        android:background="@color/black"/>
+
+                    <TextView
+                        android:id="@+id/settings_text_message_history"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_below="@+id/settings_divider_message"
+                        android:textSize="20dp"
                         android:text="Message History"/>
 
                     <CheckBox
-                        android:id="@+id/settings_notification_sound"
-                        android:layout_width="match_parent"
+                        android:id="@+id/settings_message_history"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/settings_message_history"
+                        android:layout_marginTop="20dp"
+                        android:layout_alignParentRight="true"/>
+
+                    <TextView
+                        android:id="@+id/settings_text_sound_setting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/settings_text_message_history"
+                        android:layout_marginTop="15dp"
+                        android:textSize="15dp"
+                        android:text="SOUND"/>
+
+                    <TextView
+                        android:id="@+id/settings_divider_sound"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@+id/settings_text_sound_setting"
+                        android:background="@color/black"/>
+
+                    <TextView
+                        android:id="@+id/settings_text_notification_sound"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_below="@+id/settings_divider_sound"
+                        android:textSize="20dp"
                         android:text="Notification Sound"/>
 
                     <CheckBox
-                        android:id="@+id/settings_messaging_sound"
-                        android:layout_width="match_parent"
+                        android:id="@+id/settings_notification_sound"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/settings_notification_sound"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginTop="4dp"
+                        android:layout_below="@+id/settings_divider_sound"/>
+
+
+                    <TextView
+                        android:id="@+id/settings_text_messaging_sound"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="13dp"
+                        android:layout_below="@+id/settings_text_notification_sound"
+                        android:textSize="20dp"
                         android:text="Messaging Sound"/>
+
+                    <CheckBox
+                        android:id="@+id/settings_messaging_sound"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginTop="6dp"
+                        android:layout_below="@+id/settings_notification_sound"/>
 
                 </RelativeLayout>
 

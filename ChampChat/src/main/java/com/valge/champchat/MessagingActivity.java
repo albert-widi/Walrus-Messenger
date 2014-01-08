@@ -13,6 +13,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -36,6 +37,7 @@ import com.valge.champchat.gcm_package.GCMBroadcastReceiver;
 import com.valge.champchat.httppost.HttpPostModule;
 import com.valge.champchat.list_view_adapter.MessagingAdapter;
 import com.valge.champchat.util.ActivityLocationSharedPrefs;
+import com.valge.champchat.util.ChampNotification;
 import com.valge.champchat.util.DbAdapter;
 import com.valge.champchat.util.EncryptionUtil;
 import com.valge.champchat.util.IntentExtrasUtil;
@@ -79,6 +81,9 @@ public class MessagingActivity extends Activity {
     BroadcastReceiver onPauseReceiver;
     BroadcastReceiver onResumeReceiver;
     BroadcastReceiver onStopReceiver;
+
+    //media player
+    MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -221,6 +226,10 @@ public class MessagingActivity extends Activity {
             public void onClick(View v) {
                 // TODO Auto-generated method stub
                 sendMessage();
+                if(sharedPrefsUtil.isMessagingSoundOn()) {
+                    mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.message);
+                    mediaPlayer.start();
+                }
             }
         });
 
@@ -301,18 +310,20 @@ public class MessagingActivity extends Activity {
                     }
                 });
 
-                //save message to db
+                int history = 0;
                 if(sharedPrefsUtil.isMessageHistoryOn()) {
-                    insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, userName, messageToSend.text, messageToSend.date, messageToSend.time, "SENT", "2");
-                    asyncDbAdapter.saveChatThread(friendId);
-                    System.out.println("Send insert id : " + insertId);
-                    if(insertId != -1) {
-                        messageToSend.id = insertId;
-                        System.out.println("Processing messing activity : Save message success");
-                    }
-                    else {
-                        System.out.println("Processing messaging activity : Save message failed");
-                    }
+                    history = 1;
+                }
+                //save message to db
+                insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, userName, messageToSend.text, messageToSend.date, messageToSend.time, "SENT", "2", history);
+                asyncDbAdapter.saveChatThread(friendId);
+                System.out.println("Send insert id : " + insertId);
+                if(insertId != -1) {
+                    messageToSend.id = insertId;
+                    System.out.println("Processing messing activity : Save message success");
+                }
+                else {
+                    System.out.println("Processing messaging activity : Save message failed");
                 }
 
                 System.out.println("Send Message To Backend : Encrypt message");
@@ -508,7 +519,8 @@ public class MessagingActivity extends Activity {
                     });
                 }
                 else {
-                    setNotification(id, name, phoneNumber, publicKey);
+                    ChampNotification champNotification = new ChampNotification();
+                    champNotification.setNotification(id, name, phoneNumber, publicKey, getApplicationContext());
                 }
             }
         };
@@ -523,6 +535,9 @@ public class MessagingActivity extends Activity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(onResumeReceiver);
         SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(getApplicationContext());
         sharedPrefsUtil.setToNotificationMode();
+
+        DbAdapter dbAdapter = new DbAdapter(getApplicationContext());
+        dbAdapter.deleteMessageWithNoHistory(friendId);
     }
 
     @Override
@@ -532,9 +547,11 @@ public class MessagingActivity extends Activity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(onResumeReceiver);
         SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(getApplicationContext());
         sharedPrefsUtil.setToNotificationMode();
+    }
 
-        if(!sharedPrefsUtil.isMessageHistoryOn()) {
-            deleteAllChat();
-        }
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        System.out.println("this is back pressed");
     }
 }

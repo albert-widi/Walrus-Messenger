@@ -186,7 +186,7 @@ public class DbAdapter {
     }
 
     //message
-    public long saveMessage(int friendId, String phoneNumber, String friendName, String message, String date, String time, String status, String mode) {
+    public long saveMessage(int friendId, String phoneNumber, String friendName, String message, String date, String time, String status, String mode, int historyMode) {
         openConnection();
         ContentValues values = new ContentValues();
         values.put(DbHelper.COLUMN_MESSAGE_WITH_ID, friendId);
@@ -197,6 +197,7 @@ public class DbAdapter {
         values.put(DbHelper.COLUMN_MESSAGE_TIME_DATE, date);
         values.put(DbHelper.COLUMN_MESSAGE_TIME_TIME, time);
         values.put(DbHelper.COLUMN_MESSAGE_MODE, mode);
+        values.put(DbHelper.COLUMN_MESSAGE_HISTORYMODE, historyMode);
         long id = db.insert(DbHelper.TABLE_MESSAGE_HISTORY, null, values);
         closeConnection();
 
@@ -306,7 +307,20 @@ public class DbAdapter {
 
     public boolean deleteAllMessage(int friendId) {
         openConnection();
-        long deleteId = db.delete(DbHelper.TABLE_MESSAGE_HISTORY, DbHelper.COLUMN_MESSAGE_WITH_ID + " = " + friendId, null);
+        String[] selectionArg = {"0", String.valueOf(friendId)};
+        long deleteId = db.delete(DbHelper.TABLE_MESSAGE_HISTORY, DbHelper.COLUMN_MESSAGE_WITH_ID + " = ? AND " + DbHelper.COLUMN_MESSAGE_HISTORYMODE + " = ?", selectionArg);
+        closeConnection();
+
+        if(deleteId == -1) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean deleteMessageWithNoHistory(int friendId) {
+        openConnection();
+        long deleteId = db.delete(DbHelper.TABLE_MESSAGE_HISTORY, DbHelper.COLUMN_MESSAGE_HISTORYMODE + " = 0", null);
         closeConnection();
 
         if(deleteId == -1) {
@@ -418,6 +432,7 @@ public class DbAdapter {
         public static final String COLUMN_MESSAGE_TIME_TIME = "msgtimetime";
         public static final String COLUMN_MESSAGE_TIME_TIMESTAMP = "msgtimestamp";
         public static final String COLUMN_MESSAGE_STATUS = "msgstatus";
+        public static final String COLUMN_MESSAGE_HISTORYMODE = "msghistorymode";
         //table block
         public static final String TABLE_ID_BLOCK = "idblock";
         public static final String COLUMN_BLOCKED_ID = "blockedid";
@@ -451,6 +466,7 @@ public class DbAdapter {
                 COLUMN_MESSAGE + " TEXT NOT NULL, " +
                 COLUMN_MESSAGE_STATUS + " TEXT, " +
                 COLUMN_MESSAGE_MODE + " NUMBER NOT NULL, " +
+                COLUMN_MESSAGE_HISTORYMODE + " TINYINT NOT NULL, " +
                 COLUMN_MESSAGE_TIME_DATE + " TEXT NOT NULL, " +
                 COLUMN_MESSAGE_TIME_TIME + " TEXT NOT NULL, " +
                 COLUMN_MESSAGE_TIME_TIMESTAMP + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);";

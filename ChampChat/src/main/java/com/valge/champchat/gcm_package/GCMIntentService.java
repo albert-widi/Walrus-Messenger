@@ -99,6 +99,11 @@ public class GCMIntentService extends IntentService {
         //load friend info
         Cursor friendDataCursor = asyncDbAdapter.getFriendInfo(friendId);
         SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(getApplicationContext());
+        int history = 0;
+
+        if(sharedPrefsUtil.isMessageHistoryOn()) {
+            history = 1;
+        }
 
         if(friendDataCursor.getCount() > 0) {
             friendExists = true;
@@ -125,7 +130,7 @@ public class GCMIntentService extends IntentService {
         //save message to db
         long insertId = 0;
         if(friendExists) {
-            insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, friendName, originalMessage, date, time, "", "1");
+            insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, friendName, originalMessage, date, time, "", "1", history);
             System.out.println("Receive insert id : " + insertId);
             if(insertId != -1) {
                 System.out.println("Processing chat activity : Save message success");
