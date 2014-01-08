@@ -536,8 +536,11 @@ public class MessagingActivity extends Activity {
         SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(getApplicationContext());
         sharedPrefsUtil.setToNotificationMode();
 
-        DbAdapter dbAdapter = new DbAdapter(getApplicationContext());
-        dbAdapter.deleteMessageWithNoHistory(friendId);
+        if(!sharedPrefsUtil.isMessageHistoryOn()) {
+            System.out.println("Deleting message history");
+            DbAdapter dbAdapter = new DbAdapter(getApplicationContext());
+            dbAdapter.deleteMessageWithNoHistory(friendId);
+        }
     }
 
     @Override

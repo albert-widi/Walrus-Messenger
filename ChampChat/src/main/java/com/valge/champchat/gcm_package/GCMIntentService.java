@@ -119,6 +119,7 @@ public class GCMIntentService extends IntentService {
                 return;
             }
         }
+        friendDataCursor.close();
 
         //date-time
         String date = gCalendar.get(Calendar.DATE) + "-" + gCalendar.get(Calendar.MONTH)+1 + "-" + gCalendar.get(Calendar.YEAR);

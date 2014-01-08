@@ -307,8 +307,7 @@ public class DbAdapter {
 
     public boolean deleteAllMessage(int friendId) {
         openConnection();
-        String[] selectionArg = {"0", String.valueOf(friendId)};
-        long deleteId = db.delete(DbHelper.TABLE_MESSAGE_HISTORY, DbHelper.COLUMN_MESSAGE_WITH_ID + " = ? AND " + DbHelper.COLUMN_MESSAGE_HISTORYMODE + " = ?", selectionArg);
+        long deleteId = db.delete(DbHelper.TABLE_MESSAGE_HISTORY, DbHelper.COLUMN_MESSAGE_WITH_ID + " = " + friendId, null);
         closeConnection();
 
         if(deleteId == -1) {
@@ -320,10 +319,12 @@ public class DbAdapter {
 
     public boolean deleteMessageWithNoHistory(int friendId) {
         openConnection();
-        long deleteId = db.delete(DbHelper.TABLE_MESSAGE_HISTORY, DbHelper.COLUMN_MESSAGE_HISTORYMODE + " = 0", null);
+        String[] selectionArg = {String.valueOf(friendId), "0"};
+        long deleteId = db.delete(DbHelper.TABLE_MESSAGE_HISTORY, DbHelper.COLUMN_MESSAGE_WITH_ID + " = ? AND " + DbHelper.COLUMN_MESSAGE_HISTORYMODE + " = ?", selectionArg);
         closeConnection();
 
         if(deleteId == -1) {
+            System.out.println("Cannot delete message history");
             return false;
         }
 
