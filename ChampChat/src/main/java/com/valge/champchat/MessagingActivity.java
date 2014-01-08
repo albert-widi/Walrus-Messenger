@@ -387,6 +387,7 @@ public class MessagingActivity extends Activity {
         Cursor chatContentCursor = dbAdapter.getMessage(String.valueOf(friendId));
         if(chatContentCursor.getCount() > 0) {
             while(chatContentCursor.moveToNext()) {
+                int id = chatContentCursor.getInt(chatContentCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_ID));
                 String from = chatContentCursor.getString(chatContentCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_FROM));
                 String message = chatContentCursor.getString(chatContentCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE));
                 String status = chatContentCursor.getString(chatContentCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_STATUS));
@@ -394,7 +395,9 @@ public class MessagingActivity extends Activity {
                 String date = chatContentCursor.getString(chatContentCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_TIME_DATE));
                 String time = chatContentCursor.getString(chatContentCursor.getColumnIndex(DbAdapter.DbHelper.COLUMN_MESSAGE_TIME_TIME));
                 Message messageObject = new Message(message, from, date, time, status, Integer.valueOf(mode));
-                messagingAdapater.add(messageObject);
+                messageObject.id = id;
+                this.message.add(messageObject);
+                //messagingAdapater.add(messageObject);
             }
         }
 
@@ -495,7 +498,7 @@ public class MessagingActivity extends Activity {
             public void onReceive(Context context, Intent intent) {
                 System.out.println("Messaging Activity : Processing message to adapter/notification");
                 //get data from intent
-                String message = intent.getStringExtra("message");
+                String messageReceive = intent.getStringExtra("message");
                 String date = intent.getStringExtra("date");
                 String time = intent.getStringExtra("time");
                 int id = intent.getIntExtra("id", 0);
@@ -505,7 +508,7 @@ public class MessagingActivity extends Activity {
                 long insertId = intent.getLongExtra("insertid", 0);
 
                 if(String.valueOf(friendId).equals(String.valueOf(id))) {
-                    final Message newMessage = new Message(message, friendName, date, time, "", 1);
+                    final Message newMessage = new Message(messageReceive, friendName, date, time, "", 1);
                     newMessage.id = insertId;
 
                     runOnUiThread(new Runnable() {
@@ -513,7 +516,7 @@ public class MessagingActivity extends Activity {
                         @Override
                         public void run() {
                             // TODO Auto-generated method stub
-                            messagingAdapater.add(newMessage);
+                            message.add(newMessage);
                             messagingAdapater.notifyDataSetChanged();
                         }
                     });

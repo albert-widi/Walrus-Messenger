@@ -34,6 +34,11 @@ public class DbAdapter {
         db = dbHelper.getWritableDatabase();
     }
 
+    public void finalize() throws Throwable{
+        super.finalize();
+        closeConnection();
+    }
+
     public void closeConnection() {
         db.close();
     }
@@ -255,6 +260,7 @@ public class DbAdapter {
     public Cursor getMessage(String friendId) {
         openConnection();
         String[] columns = {DbHelper.COLUMN_MESSAGE,
+                DbHelper.COLUMN_ID,
                 DbHelper.COLUMN_MESSAGE_FROM,
                 DbHelper.COLUMN_MESSAGE_STATUS,
                 DbHelper.COLUMN_MESSAGE_MODE,
