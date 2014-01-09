@@ -151,7 +151,7 @@ public class GCMIntentService extends IntentService {
             Intent messagingIntent = new Intent("messagingtester");
             messagingIntent.putExtra("message", originalMessage);
             if(friendName.equals(friendPhoneNumber)) {
-                messagingIntent.putExtra("name", friendId);
+                messagingIntent.putExtra("name", String.valueOf(friendId));
             }
             else {
                 messagingIntent.putExtra("name", friendName);

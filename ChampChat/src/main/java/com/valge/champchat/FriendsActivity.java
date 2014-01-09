@@ -288,14 +288,14 @@ public class FriendsActivity extends Activity {
 
                     if(!friendExists) {
                         System.out.println("Refresh friend list: Add new friend");
-                        Friend friend = new Friend(id, name, phoneNumber, decodedKey);
-                        friendArrayList.add(friend);
+                        final Friend friend = new Friend(id, name, phoneNumber, decodedKey);
 
                         runOnUiThread(new Runnable() {
 
                             @Override
                             public void run() {
                                 // TODO Auto-generated method stub
+                                friendArrayList.add(friend);
                                 fla.notifyDataSetChanged();
                             }
                         });

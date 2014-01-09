@@ -388,27 +388,37 @@ public class ChatActivity extends Activity {
                 if(!friendExists) {
                     System.out.println("Processing on resume message : friend not exists");
 
-                    FriendMessage friendMessage = new FriendMessage(friendId, friendName, friendPhoneNumber, friendPublicKey);
+                    final FriendMessage friendMessage = new FriendMessage(friendId, friendName, friendPhoneNumber, friendPublicKey);
                     friendMessage.lastMessage = message;
                     friendMessage.lastMessageDate = date;
                     friendMessage.lastMessageTime = time;
 
-                    messageArrayList.add(friendMessage);
+                    //messageArrayList.add(friendMessage);
+
+                    runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            // TODO Auto-generated method stub
+                            messageArrayList.add(friendMessage);
+                            fmla.notifyDataSetChanged();
+                        }
+                    });
                 }
                 else {
                     messageArrayList.get(friendNumber).lastMessage = message;
                     messageArrayList.get(friendNumber).lastMessageDate = date;
                     messageArrayList.get(friendNumber).lastMessageTime = time;
+
+                    runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            // TODO Auto-generated method stub
+                            fmla.notifyDataSetChanged();
+                        }
+                    });
                 }
-
-                runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        // TODO Auto-generated method stub
-                        fmla.notifyDataSetChanged();
-                    }
-                });
 
                 ChampNotification champNotification = new ChampNotification();
                 champNotification.setNotification(friendId, friendName, friendPhoneNumber, friendPublicKey, getApplicationContext());
