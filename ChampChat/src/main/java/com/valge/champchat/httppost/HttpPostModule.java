@@ -59,7 +59,6 @@ public class HttpPostModule {
                 System.out.println("String response :" + stringResponse);
                 jsonResponse = new JSONObject(stringResponse);
                 System.out.println("JSON : " + jsonResponse.toString());
-
             }
         }
         catch (Exception e) {

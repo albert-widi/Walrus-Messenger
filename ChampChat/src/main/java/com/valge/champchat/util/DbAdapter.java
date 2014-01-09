@@ -65,6 +65,26 @@ public class DbAdapter {
         return true;
     }
 
+    public boolean updatePrivateKey(int userId, byte[] privateKey) {
+        openConnection();
+        ContentValues values = new ContentValues();
+        String[] selectionArg = {String.valueOf(userId)};
+
+        values.put(DbHelper.COLUMN_PRIVATE_KEY, privateKey);
+
+        long id = db.update(DbHelper.TABLE_USERDAT,
+                values,
+                DbHelper.COLUMN_USER_ID + " = ?",
+                selectionArg);
+
+        if(id == -1) {
+            closeConnection();
+            return false;
+        }
+        closeConnection();
+        return true;
+    }
+
     public void deleteRegisteredUser(String phoneNumber) {
         openConnection();
         db.delete(DbHelper.TABLE_USERDAT, DbHelper.COLUMN_USER_PHONE_NUMBER + " = " + phoneNumber, null);

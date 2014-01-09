@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Base64;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -21,8 +22,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.valge.champchat.gcm_package.GCMBroadcastReceiver;
+import com.valge.champchat.httppost.HttpPostModule;
 import com.valge.champchat.list_view_adapter.FriendMessageListAdapter;
 import com.valge.champchat.util.ActivityLocationSharedPrefs;
 import com.valge.champchat.util.ChampNotification;
@@ -31,6 +34,13 @@ import com.valge.champchat.util.FriendMessage;
 import com.valge.champchat.util.IntentExtrasUtil;
 import com.valge.champchat.util.SharedPrefsUtil;
 
+import org.json.JSONObject;
+
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 
 public class ChatActivity extends Activity {
@@ -42,6 +52,7 @@ public class ChatActivity extends Activity {
     private String userName;
     private byte[] privateKey;
     private String userPhoneNumber;
+    private int userId;
 
     //messages
     ArrayList<FriendMessage> messageArrayList = new ArrayList<FriendMessage>();
@@ -88,6 +99,7 @@ public class ChatActivity extends Activity {
         userName = sharedPrefsUtil.userName;
         privateKey = sharedPrefsUtil.privateKey;
         userPhoneNumber = sharedPrefsUtil.phoneNumber;
+        userId = sharedPrefsUtil.userId;
 
         context = this;
         dbAdapter = new DbAdapter(context);
@@ -138,6 +150,67 @@ public class ChatActivity extends Activity {
             intent.putExtra(IntentExtrasUtil.XTRAS_USER_PRIVATE_KEY, privateKey);
             startActivity(intent);
             return true;
+        }
+        else if(id == R.id.action_refresh_key) {
+            //this wil be hidden in normal mode
+            new AsyncTask() {
+                @Override
+                protected Object doInBackground(Object[] params) {
+                    try {
+                        DbAdapter dbAdapter = new DbAdapter(getApplicationContext());
+                        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+                        kpg.initialize(1024, new SecureRandom());
+                        KeyPair keyPair = kpg.generateKeyPair();
+                        PublicKey publicKey = keyPair.getPublic();
+                        PrivateKey privateKey = keyPair.getPrivate();
+
+                        String stringPublicKey = Base64.encodeToString(publicKey.getEncoded(), Base64.DEFAULT);
+                        String postAction = "updateKey";
+                        String[] postData = {String.valueOf(userId), stringPublicKey};
+                        String[] postDataName = {"id", "publickey"};
+
+                        HttpPostModule httpPostModule = new HttpPostModule();
+                        JSONObject jsonResponse = httpPostModule.echatHttpPost(postAction, postData, postDataName);
+
+                        String status = jsonResponse.getString("message");
+                        //String userName = jsonResponse.getString("name");
+
+                        if(status.equalsIgnoreCase("PUBLICKEY_UPDATE_SUCCESS")) {
+                            dbAdapter.updatePrivateKey(userId, privateKey.getEncoded());
+                            System.out.println("Update Key Success");
+                            runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    // TODO Auto-generated method stub
+                                    Toast.makeText(ChatActivity.this, "Update key success", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                        else {
+                            System.out.println("Update key Failed");
+                            runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    // TODO Auto-generated method stub
+                                    Toast.makeText(ChatActivity.this, "Update key failed", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    }
+                    catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Object o) {
+                    super.onPostExecute(o);
+                }
+            }.execute(null, null, null);
+
         }
         return super.onOptionsItemSelected(item);
     }
