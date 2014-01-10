@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.valge.champchat.httppost.HttpPostModule;
 import com.valge.champchat.list_view_adapter.FriendListAdapter;
@@ -311,6 +312,15 @@ public class FriendsActivity extends Activity {
                     //---------------------------------------------------------------------------------------------------------------------------
                 }
             }
+            runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    // TODO Auto-generated method stub
+                    System.out.println("Refresh friend list complete");
+                    Toast.makeText(FriendsActivity.this, "Refresh friend complete", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
         catch (Exception e) {
             e.printStackTrace();

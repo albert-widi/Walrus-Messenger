@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.valge.champchat.httppost.HttpPostModule;
 import com.valge.champchat.util.HttpPostUtil;
@@ -92,6 +93,15 @@ public class PhoneNumberRegistrationActivity extends Activity {
                         }
                         catch(Exception e) {
                             e.printStackTrace();
+
+                            runOnUiThread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    // TODO Auto-generated method stub
+                                    Toast.makeText(PhoneNumberRegistrationActivity.this, "Failed, please check your internet connection", Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         }
 
                         return "";

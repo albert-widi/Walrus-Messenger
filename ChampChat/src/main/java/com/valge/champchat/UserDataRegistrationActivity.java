@@ -247,6 +247,15 @@ public class UserDataRegistrationActivity extends Activity {
                 }
                 catch(Exception e) {
                     e.printStackTrace();
+
+                    runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            // TODO Auto-generated method stub
+                            Toast.makeText(UserDataRegistrationActivity.this, "Failed, please check your internet connection", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
 
                 return "";
