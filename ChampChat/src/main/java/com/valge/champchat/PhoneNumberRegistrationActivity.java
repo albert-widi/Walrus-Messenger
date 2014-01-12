@@ -75,64 +75,77 @@ public class PhoneNumberRegistrationActivity extends Activity {
 
                 final String fixedPhoneNumber = phoneCode+phoneNumber;
 
-                new AsyncTask() {
-                    String stringResponse = "";
-                    JSONObject jsonResponse;
-
-                    @Override
-                    protected Object doInBackground(Object[] params) {
-                        JSONObject json = new JSONObject();
-
-                        try {
-                            String postAction = "checkreg";
-                            String[] postData= {fixedPhoneNumber};
-                            String[] postDataName = {"phonenumber"};
-
-                            HttpPostModule httpPostModule = new HttpPostModule();
-                            jsonResponse = httpPostModule.echatHttpPost(postAction, postData, postDataName);
-                        }
-                        catch(Exception e) {
-                            e.printStackTrace();
-
-                            runOnUiThread(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    // TODO Auto-generated method stub
-                                    Toast.makeText(PhoneNumberRegistrationActivity.this, "Failed, please check your internet connection", Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        }
-
-                        return "";
-                    }
-
-                    protected void onPostExecute(Object result) {
-                        try {
-                            Intent intent = new Intent(PhoneNumberRegistrationActivity.this, UserDataRegistrationActivity.class);
-
-                            String status = jsonResponse.getString("status");
-                            String userName = jsonResponse.getString("name");
-                            if(status.equalsIgnoreCase("exists")) {
-                                intent.putExtra(IntentExtrasUtil.XTRAS_PHONENUMBER, fixedPhoneNumber);
-                                intent.putExtra(IntentExtrasUtil.XTRAS_NAME_USERNAME, userName);
-                                intent.putExtra(IntentExtrasUtil.XTRAS_ACTION, "updateuser");
-                            }
-                            else {
-                                intent.putExtra(IntentExtrasUtil.XTRAS_PHONENUMBER, fixedPhoneNumber);
-                                intent.putExtra(IntentExtrasUtil.XTRAS_NAME_USERNAME, "");
-                                intent.putExtra(IntentExtrasUtil.XTRAS_ACTION, "register");
-                            }
-
-                            startActivity(intent);
-                            PhoneNumberRegistrationActivity.this.finish();
-                        }
-                        catch(Exception e) {
-                            e.printStackTrace();
-                        }
-                    };
-                }.execute(null, null, null);
+                doConfirmationOnBackground(fixedPhoneNumber);
             }
         });
+    }
+
+    private void doConfirmationOnBackground(String fixedPhoneNumberString) {
+        final String fixedPhoneNumber = fixedPhoneNumberString;
+        new AsyncTask() {
+            String stringResponse = "";
+            JSONObject jsonResponse;
+
+            @Override
+            protected Object doInBackground(Object[] params) {
+                JSONObject json = new JSONObject();
+
+                try {
+                    String postAction = "checkreg";
+                    String[] postData= {fixedPhoneNumber};
+                    String[] postDataName = {"phonenumber"};
+
+                    HttpPostModule httpPostModule = new HttpPostModule();
+                    jsonResponse = httpPostModule.echatHttpPost(postAction, postData, postDataName);
+                }
+                catch(Exception e) {
+                    e.printStackTrace();
+
+                    runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            // TODO Auto-generated method stub
+                            Toast.makeText(PhoneNumberRegistrationActivity.this, "Failed, please check your internet connection", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
+                return "";
+            }
+
+            protected void onPostExecute(Object result) {
+                try {
+                    Intent intent = new Intent(PhoneNumberRegistrationActivity.this, UserDataRegistrationActivity.class);
+
+                    String status = jsonResponse.getString("status");
+                    String userName = jsonResponse.getString("name");
+                    if(status.equalsIgnoreCase("exists")) {
+                        intent.putExtra(IntentExtrasUtil.XTRAS_PHONENUMBER, fixedPhoneNumber);
+                        intent.putExtra(IntentExtrasUtil.XTRAS_NAME_USERNAME, userName);
+                        intent.putExtra(IntentExtrasUtil.XTRAS_ACTION, "updateuser");
+                    }
+                    else {
+                        intent.putExtra(IntentExtrasUtil.XTRAS_PHONENUMBER, fixedPhoneNumber);
+                        intent.putExtra(IntentExtrasUtil.XTRAS_NAME_USERNAME, "");
+                        intent.putExtra(IntentExtrasUtil.XTRAS_ACTION, "register");
+                    }
+
+                    startActivity(intent);
+                    PhoneNumberRegistrationActivity.this.finish();
+                }
+                catch(Exception e) {
+                    e.printStackTrace();
+                    runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            // TODO Auto-generated method stub
+                            Toast.makeText(PhoneNumberRegistrationActivity.this, "Failed, please check your internet connection", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            };
+        }.execute(null, null, null);
     }
 }

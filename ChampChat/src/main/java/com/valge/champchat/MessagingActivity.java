@@ -315,7 +315,7 @@ public class MessagingActivity extends Activity {
                     history = 1;
                 }
                 //save message to db
-                insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, userName, messageToSend.text, messageToSend.date, messageToSend.time, "SENT", "2", history);
+                insertId = asyncDbAdapter.saveMessage(friendId, friendPhoneNumber, userName, messageToSend.text, messageToSend.date, messageToSend.time, "SENDING", "2", history);
                 asyncDbAdapter.saveChatThread(friendId);
                 System.out.println("Send insert id : " + insertId);
                 if(insertId != -1) {
@@ -337,12 +337,32 @@ public class MessagingActivity extends Activity {
                 System.out.println("Send Message To Backend : Send message to backend");
                 try {
                     HttpPostModule httpPostModule = new HttpPostModule();
+                    asyncDbAdapter.updateMessage(insertId, "SENT");
+
+                    runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            // TODO Auto-generated method stub
+                            messagingAdapater.notifyDataSetChanged();
+                        }
+                    });
+
                     jsonResponse = httpPostModule.echatHttpPost(postAction, postData, postDataName);
                 }
                 catch(Exception e) {
                     e.printStackTrace();
                     messageToSend.status = "FAILED";
                     asyncDbAdapter.updateMessage(insertId, "FAILED");
+
+                    runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            // TODO Auto-generated method stub
+                            messagingAdapater.notifyDataSetChanged();
+                        }
+                    });
                 }
 
 

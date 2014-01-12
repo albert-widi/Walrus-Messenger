@@ -420,6 +420,19 @@ public class ChatActivity extends Activity {
 
     }
 
+    private int getConversationNumber(int friendId) {
+        int messageListLength = messageArrayList.size();
+        int friendNumber = 0;
+        for(int i = 0; i < messageListLength; i++) {
+            if(messageArrayList.get(i).id == friendId) {
+                friendNumber = i;
+                break;
+            }
+        }
+
+        return friendNumber;
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -447,18 +460,9 @@ public class ChatActivity extends Activity {
                 }
 
                 //load friend information
-                boolean friendExists = false;
-                int messageListLength = messageArrayList.size();
-                int friendNumber = 0;
-                for(int i = 0; i < messageListLength; i++) {
-                    if(messageArrayList.get(i).id == friendId) {
-                        friendExists = true;
-                        friendNumber = i;
-                        break;
-                    }
-                }
+                int conversationNumber = getConversationNumber(friendId);
 
-                if(!friendExists) {
+                if(conversationNumber == 0) {
                     System.out.println("Processing on resume message : friend not exists");
 
                     final FriendMessage friendMessage = new FriendMessage(friendId, friendName, friendPhoneNumber, friendPublicKey);
@@ -479,9 +483,9 @@ public class ChatActivity extends Activity {
                     });
                 }
                 else {
-                    messageArrayList.get(friendNumber).lastMessage = message;
-                    messageArrayList.get(friendNumber).lastMessageDate = date;
-                    messageArrayList.get(friendNumber).lastMessageTime = time;
+                    messageArrayList.get(conversationNumber).lastMessage = message;
+                    messageArrayList.get(conversationNumber).lastMessageDate = date;
+                    messageArrayList.get(conversationNumber).lastMessageTime = time;
 
                     runOnUiThread(new Runnable() {
 

@@ -155,7 +155,14 @@ public class FriendsActivity extends Activity {
                     }
                 }
                 catch(Exception e) {
+                    runOnUiThread(new Runnable() {
 
+                        @Override
+                        public void run() {
+                            // TODO Auto-generated method stub
+                            Toast.makeText(FriendsActivity.this, "Failed, please check your internet connection", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
 
                 return "";
