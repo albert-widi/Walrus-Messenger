@@ -148,7 +148,7 @@ public class GCMIntentService extends IntentService {
 
         if(sharedPrefsUtil.isTesterMode()) {
             System.out.println("Goin to tester mode");
-            Intent messagingIntent = new Intent("messagingtester");
+            final Intent messagingIntent = new Intent("messagingtester");
             messagingIntent.putExtra("message", originalMessage);
             if(friendName.equals(friendPhoneNumber)) {
                 messagingIntent.putExtra("name", String.valueOf(friendId));
@@ -158,10 +158,12 @@ public class GCMIntentService extends IntentService {
             }
             messagingIntent.putExtra("date", date);
             messagingIntent.putExtra("time", time);
+
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messagingIntent);
         }
         else if(!sharedPrefsUtil.isNotificationModeOn()) {
-            Intent messagingIntent = new Intent("messagingactiv");
+            System.out.println("Receiver mode");
+            final Intent messagingIntent = new Intent("messagingactiv");
             messagingIntent.putExtra("message", originalMessage);
             messagingIntent.putExtra("id", friendId);
             messagingIntent.putExtra("name", friendName);
@@ -170,6 +172,7 @@ public class GCMIntentService extends IntentService {
             messagingIntent.putExtra("date", date);
             messagingIntent.putExtra("time", time);
             messagingIntent.putExtra("insertid", insertId);
+            System.out.println("Prepare to broadcast message");
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messagingIntent);
         }
         else {

@@ -422,9 +422,11 @@ public class ChatActivity extends Activity {
 
     private int getConversationNumber(int friendId) {
         int messageListLength = messageArrayList.size();
-        int friendNumber = 0;
+        int friendNumber = -1;
         for(int i = 0; i < messageListLength; i++) {
-            if(messageArrayList.get(i).id == friendId) {
+            System.out.println("Friend id : " + messageArrayList.get(i).id + " Match id : "  + friendId);
+            if(Integer.valueOf(messageArrayList.get(i).id).equals(friendId)) {
+                //System.out.println("Match kok");
                 friendNumber = i;
                 break;
             }
@@ -461,8 +463,8 @@ public class ChatActivity extends Activity {
 
                 //load friend information
                 int conversationNumber = getConversationNumber(friendId);
-
-                if(conversationNumber == 0) {
+                System.out.println("Conversation Number : "  + conversationNumber);
+                if(conversationNumber == -1) {
                     System.out.println("Processing on resume message : friend not exists");
 
                     final FriendMessage friendMessage = new FriendMessage(friendId, friendName, friendPhoneNumber, friendPublicKey);
@@ -501,7 +503,7 @@ public class ChatActivity extends Activity {
                 champNotification.setNotification(friendId, friendName, friendPhoneNumber, friendPublicKey, getApplicationContext());
             }
         };
-        LocalBroadcastManager.getInstance(this).registerReceiver(onResumeReceiver, new IntentFilter("messagingactiv"));
+        LocalBroadcastManager.getInstance(ChatActivity.this).registerReceiver(onResumeReceiver, new IntentFilter("messagingactiv"));
     }
 
     @Override
@@ -517,6 +519,6 @@ public class ChatActivity extends Activity {
     protected void onStop() {
         super.onStop();
         System.out.println("This is on stop on Chat activity");
-        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(onResumeReceiver);
+        //LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(onResumeReceiver);
     }
 }

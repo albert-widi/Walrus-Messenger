@@ -10,7 +10,7 @@
     tools:context="com.valge.champchat.AboutActivity$PlaceholderFragment">
 
     <TextView
-        android:text="Walrus Messengger"
+        android:text="Walrus Messenger"
         android:textSize="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
@@ -48,7 +48,7 @@
         android:background="@color/black"
         android:layout_marginTop="20dp"/>
     <TextView
-        android:text="Walrus Messengger adalah sebuah Internet Messengger(IM) dengan menggunakan konsep End to End Encryption (E2EE)"
+        android:text="Walrus Messenger adalah sebuah Internet Messenger(IM) dengan menggunakan konsep End to End Encryption (E2EE)"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"/>

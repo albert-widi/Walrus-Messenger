@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:fontFamily="Adele"
-        android:text="Walrus Messengger"
+        android:text="Walrus Messenger"
         android:textSize="20dp"
         android:textStyle="bold"
         android:layout_gravity="center"/>

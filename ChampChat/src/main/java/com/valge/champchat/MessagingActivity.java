@@ -338,7 +338,7 @@ public class MessagingActivity extends Activity {
                 try {
                     HttpPostModule httpPostModule = new HttpPostModule();
                     asyncDbAdapter.updateMessage(insertId, "SENT");
-
+                    messageToSend.status = "SENT";
                     runOnUiThread(new Runnable() {
 
                         @Override
@@ -570,14 +570,14 @@ public class MessagingActivity extends Activity {
     protected void onStop() {
         super.onStop();
         System.out.println("This is onstop in messaging");
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(onResumeReceiver);
-        SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(getApplicationContext());
-        sharedPrefsUtil.setToNotificationMode();
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(onResumeReceiver);
+        //SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(getApplicationContext());
+        //sharedPrefsUtil.setToNotificationMode();
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        System.out.println("this is back pressed");
+        System.out.println("INI BACK");
     }
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Walrus Messengger</string>
+    <string name="app_name">Walrus Messenger</string>
     <string name="chat_activity">Chats</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
@@ -11,7 +11,7 @@
     <string name="title_activity_application_activation">Activate Application</string>
     <string name="title_activity_friends">Friends</string>
     <string name="title_activity_messaging">MessagingActivity</string>
-    <string name="title_activity_phone_number_registration">Register Phone Number</string>
+    <string name="title_activity_phone_number_registration">Phone Number Confirmation</string>
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="title_activity_user_data_registration">User Data</string>
     <string name="menu_search">Search</string>
@@ -21,7 +21,7 @@
     <string name="fill_userinfo">User Information</string>
     <string name="search_match_other">Matches Other Field</string>
     <string name="title_activity_register">Register</string>
-    <string name="welcome_to_app">Welcome to Walrus Messengger!</string>
+    <string name="welcome_to_app">Welcome to Walrus Messenger!</string>
     <string name="title_activity_tester">TesterActivity</string>
     <string name="title_activity_contact_details">ContactDetailsActivity</string>
     <string name="title_activity_key_refresher">KeyRefresher</string>
