@@ -127,7 +127,7 @@ public class UserDataRegistrationActivity extends Activity {
 
                     @Override
                     protected Object doInBackground(Object[] params) {
-                        secretKey = secretKeyEdit.getText().toString();
+                        //secretKey = secretKeyEdit.getText().toString();
                         userName = userNameEdit.getText().toString();
                         phoneNumber = phoneNumberEdit.getText().toString();
 
@@ -266,7 +266,7 @@ public class UserDataRegistrationActivity extends Activity {
                     if(jsonResponse.getString("message").equalsIgnoreCase("REG_SUCCESS")) {
                         userId = jsonResponse.getInt("userid");
 
-                        if(dbAdapter.registerUser(userId, phoneNumber, userName, regid, secretKey, privateKey.getEncoded())) {
+                        if(dbAdapter.registerUser(userId, phoneNumber, userName, regid, "staticfornow", privateKey.getEncoded())) {
                             activateApplication();
                         }
                         else {
