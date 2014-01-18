@@ -59,6 +59,13 @@ public class SharedPrefsUtil {
         secretKey = sprefs.getString(SharedPrefsUtil.KEY_SECRET_KEY, "");
     }
 
+    public void saveNewPrivateKey(String privateKey) {
+        SharedPreferences sprefs = context.getSharedPreferences(SharedPrefsUtil.PREFS_NAME, context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sprefs.edit();
+        editor.putString(KEY_PRIVATE_KEY, privateKey);
+        editor.commit();
+    }
+
     public PrivateKey getUserPrivateKey() {
         SharedPreferences sprefs = context.getSharedPreferences(SharedPrefsUtil.PREFS_NAME, context.MODE_PRIVATE);
         byte[] privateKey = Base64.decode(sprefs.getString(SharedPrefsUtil.KEY_PRIVATE_KEY, ""), Base64.DEFAULT);

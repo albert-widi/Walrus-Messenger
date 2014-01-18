@@ -106,7 +106,7 @@ public class UserDataRegistrationActivity extends Activity {
 
         final EditText phoneNumberEdit = (EditText) findViewById(R.id.register_phone_number);
         final EditText userNameEdit = (EditText) findViewById(R.id.register_user_name);
-        final EditText secretKeyEdit = (EditText) findViewById(R.id.register_secret_pass);
+        //final EditText secretKeyEdit = (EditText) findViewById(R.id.register_secret_pass);
 
         Intent intent = getIntent();
         userName = intent.getExtras().getString(IntentExtrasUtil.XTRAS_NAME_USERNAME);

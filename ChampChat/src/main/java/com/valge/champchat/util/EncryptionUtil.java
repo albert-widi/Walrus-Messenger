@@ -28,7 +28,7 @@ public class EncryptionUtil {
             //AES ENCRYPTION FOR MESSAGE
             System.out.println("Encrypt : Encrypt message with AES");
             byte[] messageByte = message.getBytes("UTF-8");
-            byte[] keyStart = "staticfornow".getBytes();
+            byte[] keyStart = sharedPrefsUtil.secretKey.getBytes();
             KeyGenerator keyGen = KeyGenerator.getInstance("AES");
             SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
             sr.setSeed(keyStart);

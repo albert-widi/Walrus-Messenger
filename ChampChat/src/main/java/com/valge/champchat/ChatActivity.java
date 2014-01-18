@@ -177,6 +177,10 @@ public class ChatActivity extends Activity {
 
                         if(status.equalsIgnoreCase("PUBLICKEY_UPDATE_SUCCESS")) {
                             dbAdapter.updatePrivateKey(userId, privateKey.getEncoded());
+                            String stringPrivateKey = Base64.encodeToString(privateKey.getEncoded(), Base64.DEFAULT);
+                            SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(ChatActivity.this);
+                            sharedPrefsUtil.saveNewPrivateKey(stringPrivateKey);
+
                             System.out.println("Update Key Success");
                             runOnUiThread(new Runnable() {
 
