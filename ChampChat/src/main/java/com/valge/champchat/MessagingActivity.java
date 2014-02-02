@@ -291,7 +291,7 @@ public class MessagingActivity extends Activity {
     }
 
     private void sendMessageToBackend(String messageText, String date, String time) {
-        final Message messageToSend = new Message(messageText, userName, date, time, "SENT", 2);
+        final Message messageToSend = new Message(messageText, userName, date, time, "SENDING", 2);
 
         new AsyncTask() {
             JSONObject jsonResponse = new JSONObject();
@@ -337,6 +337,9 @@ public class MessagingActivity extends Activity {
                 System.out.println("Send Message To Backend : Send message to backend");
                 try {
                     HttpPostModule httpPostModule = new HttpPostModule();
+
+                    jsonResponse = httpPostModule.echatHttpPost(postAction, postData, postDataName);
+
                     asyncDbAdapter.updateMessage(insertId, "SENT");
                     messageToSend.status = "SENT";
                     runOnUiThread(new Runnable() {
@@ -347,8 +350,6 @@ public class MessagingActivity extends Activity {
                             messagingAdapater.notifyDataSetChanged();
                         }
                     });
-
-                    jsonResponse = httpPostModule.echatHttpPost(postAction, postData, postDataName);
                 }
                 catch(Exception e) {
                     e.printStackTrace();

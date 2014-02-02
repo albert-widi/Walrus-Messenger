@@ -10,6 +10,9 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
@@ -24,10 +27,18 @@ public class HttpPostModule {
     final HttpClient httpClient;
     final HttpPost httpPost;
     JSONObject json;
-    JSONObject jsonResponse;
+    JSONObject jsonResponse = null;
 
     public HttpPostModule() {
-        httpClient = new DefaultHttpClient();
+        HttpParams httpParams = new BasicHttpParams();
+        //set timeout connect
+        int timeOutConnection = 1000;
+        HttpConnectionParams.setConnectionTimeout(httpParams, timeOutConnection);
+        //set timeout socket
+        int timeOutSocket = 1000;
+        HttpConnectionParams.setSoTimeout(httpParams, timeOutSocket);
+
+        httpClient = new DefaultHttpClient(httpParams);
         httpPost = new HttpPost(HttpPostUtil.postURL);
         json = new JSONObject();
     }
@@ -62,6 +73,27 @@ public class HttpPostModule {
             }
         }
         catch (Exception e) {
+            //System.out.println("Masuk ke exception");
+            //e.printStackTrace();
+            if(jsonResponse != null) {
+                try {
+                    jsonResponse.put("message", "ERROR");
+                    return jsonResponse;
+                }
+                catch(Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+            else {
+                try {
+                    jsonResponse = new JSONObject();
+                    jsonResponse.put("message", "ERROR");
+                    return jsonResponse;
+                }
+                catch(Exception exx) {
+                    exx.printStackTrace();
+                }
+            }
             e.printStackTrace();
         }
         return jsonResponse;
