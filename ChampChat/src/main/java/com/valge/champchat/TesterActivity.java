@@ -186,6 +186,6 @@ public class TesterActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(testerReceiver);
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(testerReceiver);
     }
 }

@@ -17,7 +17,7 @@ public class GCMBroadcastReceiver extends WakefulBroadcastReceiver{
         public void onReceive(Context context, Intent intent) {
             // TODO Auto-generated method stub
             // Explicitly specify that GcmIntentService will handle the intent.
-            System.out.println("Do something woi");
+            //System.out.println("Do something woi");
             System.out.println("NAKED INTENT : " + intent.getExtras().toString());
             ComponentName comp = new ComponentName(context.getPackageName(), GCMIntentService.class.getName());
             Intent gcmIntent = new Intent(context, GCMIntentService.class);

@@ -40,7 +40,13 @@ public class DbAdapter {
     }
 
     public void closeConnection() {
-        db.close();
+        try {
+            db.close();
+        }
+        catch(Exception e) {
+
+        }
+
     }
 
     public boolean registerUser(int userId, String phoneNumber, String userName, String gcmId, String secretKey, byte[] privateKey) {

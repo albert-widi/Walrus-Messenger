@@ -32,10 +32,10 @@ public class HttpPostModule {
     public HttpPostModule() {
         HttpParams httpParams = new BasicHttpParams();
         //set timeout connect
-        int timeOutConnection = 1000;
+        int timeOutConnection = 2500;
         HttpConnectionParams.setConnectionTimeout(httpParams, timeOutConnection);
         //set timeout socket
-        int timeOutSocket = 1000;
+        int timeOutSocket = 5000;
         HttpConnectionParams.setSoTimeout(httpParams, timeOutSocket);
 
         httpClient = new DefaultHttpClient(httpParams);
@@ -73,7 +73,7 @@ public class HttpPostModule {
             }
         }
         catch (Exception e) {
-            //System.out.println("Masuk ke exception");
+            System.out.println("Masuk ke exception");
             //e.printStackTrace();
             if(jsonResponse != null) {
                 try {
