@@ -74,7 +74,7 @@ public class HttpPostModule {
         }
         catch (Exception e) {
             System.out.println("Masuk ke exception");
-            //e.printStackTrace();
+            e.printStackTrace();
             if(jsonResponse != null) {
                 try {
                     jsonResponse.put("message", "ERROR");
@@ -94,7 +94,7 @@ public class HttpPostModule {
                     exx.printStackTrace();
                 }
             }
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return jsonResponse;
     }

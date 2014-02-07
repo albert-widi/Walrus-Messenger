@@ -12,8 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -65,6 +67,11 @@ public class UserDataRegistrationActivity extends Activity {
     //json object
     private JSONObject jsonResponse;
 
+    //button
+    Button registerButton;
+    //progress
+    ProgressBar progressBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,6 +105,8 @@ public class UserDataRegistrationActivity extends Activity {
         super.onPostCreate(savedInstanceState);
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
+        progressBar = (ProgressBar) findViewById(R.id.progress_user_data_regis);
+        progressBar.setVisibility(View.INVISIBLE);
         context = getApplicationContext();
         dbAdapter = new DbAdapter(context);
 
@@ -116,12 +125,17 @@ public class UserDataRegistrationActivity extends Activity {
         phoneNumberEdit.setText(phoneNumber);
         userNameEdit.setText(userName);
 
-        Button registerButton = (Button) findViewById(R.id.reg_button);
+        registerButton = (Button) findViewById(R.id.reg_button);
 
         registerButton.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
+                progressBar.setVisibility(View.VISIBLE);
+                registerButton.setEnabled(false);
+
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(registerButton.getWindowToken(), 0);
+
                 // TODO Auto-generated method stub
                 new AsyncTask() {
 
@@ -253,6 +267,8 @@ public class UserDataRegistrationActivity extends Activity {
                         @Override
                         public void run() {
                             // TODO Auto-generated method stub
+                            progressBar.setVisibility(View.INVISIBLE);
+                            registerButton.setEnabled(true);
                             Toast.makeText(UserDataRegistrationActivity.this, "Failed, please check your internet connection", Toast.LENGTH_SHORT).show();
                         }
                     });
@@ -275,6 +291,8 @@ public class UserDataRegistrationActivity extends Activity {
                     }
                     else {
                         unsetRegistrationData();
+                        progressBar.setVisibility(View.INVISIBLE);
+                        registerButton.setEnabled(true);
                         Toast.makeText(UserDataRegistrationActivity.this, "Registration failed", Toast.LENGTH_SHORT).show();
                     }
                 }

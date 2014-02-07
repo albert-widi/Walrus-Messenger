@@ -94,7 +94,9 @@ public class FriendsActivity extends Activity {
             return true;
         }
         else if(id == R.id.menu_refresh) {
+            item.setEnabled(false);
             refreshFriendList();
+            item.setEnabled(true);
         }
         return super.onOptionsItemSelected(item);
     }
