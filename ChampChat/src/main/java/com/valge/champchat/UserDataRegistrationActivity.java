@@ -221,6 +221,10 @@ public class UserDataRegistrationActivity extends Activity {
 
             @Override
             protected Object doInBackground(Object[] params) {
+                if (gcm == null) {
+                    gcm = GoogleCloudMessaging.getInstance(context);
+                }
+
                 try {
                     regid = gcm.register(SENDER_ID);
                     System.out.println("Device registered : " + regid);
@@ -228,15 +232,17 @@ public class UserDataRegistrationActivity extends Activity {
                 catch(IOException e) {
                     System.out.println(e.getMessage());
                 }
-                if (gcm == null) {
-                    gcm = GoogleCloudMessaging.getInstance(context);
-                }
 
                 return "";
             }
 
             protected void onPostExecute(Object result) {
-                saveRegistrationDataToBackend();
+                if(regid.isEmpty()) {
+                    Toast.makeText(UserDataRegistrationActivity.this, "Registration failed, please check your internet connection", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    saveRegistrationDataToBackend();
+                }
             };
         }.execute(null, null, null);
     }
@@ -269,7 +275,7 @@ public class UserDataRegistrationActivity extends Activity {
                             // TODO Auto-generated method stub
                             progressBar.setVisibility(View.INVISIBLE);
                             registerButton.setEnabled(true);
-                            Toast.makeText(UserDataRegistrationActivity.this, "Failed, please check your internet connection", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(UserDataRegistrationActivity.this, "Registration failed, please check your internet connection", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }

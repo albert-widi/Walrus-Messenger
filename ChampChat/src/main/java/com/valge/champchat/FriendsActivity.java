@@ -162,7 +162,7 @@ public class FriendsActivity extends Activity {
                         @Override
                         public void run() {
                             // TODO Auto-generated method stub
-                            Toast.makeText(FriendsActivity.this, "Failed, please check your internet connection", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(FriendsActivity.this, "Refresh friend failed, please check your internet connection", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }

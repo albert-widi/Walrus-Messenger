@@ -130,7 +130,7 @@ public class PhoneNumberRegistrationActivity extends Activity {
                             // TODO Auto-generated method stub
                             confirmButton.setEnabled(true);
                             progressBar.setVisibility(View.INVISIBLE);
-                            Toast.makeText(PhoneNumberRegistrationActivity.this, "Failed, please check your internet connection", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PhoneNumberRegistrationActivity.this, "Phone number confirmation failed, please check your internet connection", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -169,7 +169,7 @@ public class PhoneNumberRegistrationActivity extends Activity {
                             // TODO Auto-generated method stub
                             confirmButton.setEnabled(true);
                             progressBar.setVisibility(View.INVISIBLE);
-                            Toast.makeText(PhoneNumberRegistrationActivity.this, "Failed, please check your internet connection", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PhoneNumberRegistrationActivity.this, "Phone number confirmation failed, please check your internet connection", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
