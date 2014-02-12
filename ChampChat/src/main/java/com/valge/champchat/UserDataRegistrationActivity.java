@@ -296,7 +296,7 @@ public class UserDataRegistrationActivity extends Activity {
                         }
                     }
                     else {
-                        unsetRegistrationData();
+                        //unsetRegistrationData();
                         progressBar.setVisibility(View.INVISIBLE);
                         registerButton.setEnabled(true);
                         Toast.makeText(UserDataRegistrationActivity.this, "Registration failed", Toast.LENGTH_SHORT).show();

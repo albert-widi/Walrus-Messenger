@@ -283,7 +283,8 @@ public class MessagingActivity extends Activity {
     }
 
     private String getCurrentDate() {
-        return gCalendar.get(Calendar.DATE) + "-" + gCalendar.get(Calendar.MONTH)+1 + "-" + gCalendar.get(Calendar.YEAR);
+        int month = gCalendar.get(Calendar.MONTH) + 1;
+        return gCalendar.get(Calendar.DATE) + "-" + month + "-" + gCalendar.get(Calendar.YEAR);
     }
 
     private String getCurrentTime() {

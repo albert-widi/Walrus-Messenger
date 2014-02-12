@@ -122,7 +122,8 @@ public class GCMIntentService extends IntentService {
         friendDataCursor.close();
 
         //date-time
-        String date = gCalendar.get(Calendar.DATE) + "-" + gCalendar.get(Calendar.MONTH)+1 + "-" + gCalendar.get(Calendar.YEAR);
+        int month = gCalendar.get(Calendar.MONTH) + 1;
+        String date = gCalendar.get(Calendar.DATE) + "-" + month + "-" + gCalendar.get(Calendar.YEAR);
         String time = gCalendar.get(Calendar.HOUR) + ":" + gCalendar.get(Calendar.MINUTE);
 
         String originalMessage = encryptionUtil.decryptMessage(message, messageKey, messageHash, getApplicationContext());
