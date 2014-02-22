@@ -33,19 +33,14 @@ public class MessagingAdapter extends ArrayAdapter{
         	LayoutInflater inflater = (LayoutInflater) context
     				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-
-            rowView = inflater.inflate(R.layout.message_list_item_one, null);
-            //very2 buggy
-            /*System.out.println("Mode : " + message.get(position).mode);
-            if(message.get(position).mode == 2) {
-                System.out.println("Mode 2");
-                rowView = inflater.inflate(R.layout.message_list_item_two, null);
+            //freakin buggy
+            /*if(message.get(position).mode == 1) {
+                rowView = inflater.inflate(R.layout.message_list_item_one, null);
             }
             else {
-                System.out.println("Mode 1");
-                rowView = inflater.inflate(R.layout.message_list_item_one, null);
+                rowView = inflater.inflate(R.layout.message_list_item_two, null);
             }*/
-
+            rowView = inflater.inflate(R.layout.message_list_item_one, null);
 
             // Hold the view objects in an object,
             // so they don't need to be re-fetched
@@ -64,7 +59,7 @@ public class MessagingAdapter extends ArrayAdapter{
         }
 
         // Transfer the stock data from the data object
-        // to the view objects      
+        // to the view objects
         //MessageData currentMsg = (MessageData)messages.get(position);
         if(message.size() > 0) {
             msgView.message.setText(message.get(position).text);

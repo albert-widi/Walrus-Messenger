@@ -17,6 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Albert Widiatmoko"
+            android:textStyle="bold"
             android:textSize="22dp"
             android:textColor="@color/black"/>
 
@@ -28,6 +29,7 @@
             android:layout_marginTop="3dp"
             android:layout_marginLeft="2dp"
             android:text="Halo bro apa kabarnya nih?"
+            android:textColor="@color/last_message2"
             android:textSize="18dp"/>
 
         <TextView
@@ -39,7 +41,8 @@
             android:layout_marginTop="8dp"
             android:layout_alignParentRight="true"
             android:text="12/12/2013"
-            android:textSize="14dp" />
+            android:textSize="14dp"
+            android:textColor="@color/chat_activity_time"/>
 
         <TextView
             android:id="@+id/adapter_message_last_message_time"
@@ -50,7 +53,8 @@
             android:layout_marginRight="2dp"
             android:layout_alignParentRight="true"
             android:text="20:00PM"
-            android:textSize="14dp"/>
+            android:textSize="14dp"
+            android:textColor="@color/chat_activity_time"/>
 
     </RelativeLayout>
 

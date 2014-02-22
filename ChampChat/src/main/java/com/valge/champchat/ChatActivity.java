@@ -12,7 +12,6 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Base64;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,10 +21,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.valge.champchat.gcm_package.GCMBroadcastReceiver;
-import com.valge.champchat.httppost.HttpPostModule;
 import com.valge.champchat.list_view_adapter.FriendMessageListAdapter;
 import com.valge.champchat.util.ActivityLocationSharedPrefs;
 import com.valge.champchat.util.ChampNotification;
@@ -34,13 +31,6 @@ import com.valge.champchat.util.FriendMessage;
 import com.valge.champchat.util.IntentExtrasUtil;
 import com.valge.champchat.util.SharedPrefsUtil;
 
-import org.json.JSONObject;
-
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 
 public class ChatActivity extends Activity {
@@ -151,7 +141,7 @@ public class ChatActivity extends Activity {
             startActivity(intent);
             return true;
         }
-        else if(id == R.id.action_refresh_key) {
+        /*else if(id == R.id.action_refresh_key) {
             //this wil be hidden in normal mode
             new AsyncTask() {
                 @Override
@@ -215,7 +205,7 @@ public class ChatActivity extends Activity {
                 }
             }.execute(null, null, null);
 
-        }
+        }*/
         return super.onOptionsItemSelected(item);
     }
 

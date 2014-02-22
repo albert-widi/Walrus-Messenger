@@ -27,7 +27,7 @@
         android:layout_marginTop="20dp"/>
 
     <TextView
-        android:text="Information Technology"
+        android:text="Teknologi Informasi dan Komunikasi"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
@@ -48,7 +48,8 @@
         android:background="@color/black"
         android:layout_marginTop="20dp"/>
     <TextView
-        android:text="Walrus Messenger adalah sebuah Internet Messenger(IM) dengan menggunakan konsep End to End Encryption (E2EE)"
+        android:text="Walrus Messenger adalah sebuah Internet Messenger(IM) dengan menggunakan konsep End to End Encryption (E2EE)
+                      \n\n End to End Encryption di dalam aplikasi ini diimplementasikan dengan menggunakan algoritma enkripsi AES dan RSA serta algoritma message-digest MD5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"/>

@@ -30,8 +30,8 @@
         android:orderInCategory="100"
         android:showAsAction="never" />
 
-    <item android:id="@+id/action_refresh_key"
+    <!--<item android:id="@+id/action_refresh_key"
         android:title="Refresh Key"
         android:orderInCategory="100"
-        android:showAsAction="never" />
+        android:showAsAction="never" />-->
 </menu>

@@ -32,7 +32,7 @@ public class HttpPostModule {
     public HttpPostModule() {
         HttpParams httpParams = new BasicHttpParams();
         //set timeout connect
-        int timeOutConnection = 2500;
+        int timeOutConnection = 3500;
         HttpConnectionParams.setConnectionTimeout(httpParams, timeOutConnection);
         //set timeout socket
         int timeOutSocket = 5000;
