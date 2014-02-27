@@ -19,6 +19,34 @@ import javax.crypto.spec.SecretKeySpec;
  * Created by Albert Widiatmoko on 10/12/13.
  */
 public class EncryptionUtil {
+    public void createMDSHAHash(String originalString) {
+        try {
+            byte[] originalStringBytes = originalString.getBytes("UTF-8");
+            MessageDigest digestMD5 = MessageDigest.getInstance("MD5");
+            MessageDigest digestSHA1 = MessageDigest.getInstance("SHA1");
+            digestMD5.update(originalStringBytes);
+            byte[] md5ShaStringBytes = digestMD5.digest();
+            digestSHA1.update(md5ShaStringBytes);
+            md5ShaStringBytes = digestSHA1.digest();
+
+            StringBuffer hexString = new StringBuffer();
+            int digestLength = md5ShaStringBytes.length;
+            for(int i = 0; i < digestLength; i++) {
+                String h = Integer.toHexString(0xff & md5ShaStringBytes[i]);
+                 while(h.length() < 2) {
+                    h = "0" + h;
+                }
+                hexString.append(h);
+            }
+            String fixHexString = hexString.toString();
+            System.out.println("Encrypt : Hex String : " + fixHexString);
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public MessageEncrypt encryptMessage(String message, byte[] publicKeyByte, Context context) {
         MessageEncrypt messageEncrypt = new MessageEncrypt();
         SharedPrefsUtil sharedPrefsUtil = new SharedPrefsUtil(context);
