@@ -19,7 +19,8 @@ import javax.crypto.spec.SecretKeySpec;
  * Created by Albert Widiatmoko on 10/12/13.
  */
 public class EncryptionUtil {
-    public void createMDSHAHash(String originalString) {
+    public String createMDSHAHash(String originalString) {
+        String hashString = "";
         try {
             byte[] originalStringBytes = originalString.getBytes("UTF-8");
             MessageDigest digestMD5 = MessageDigest.getInstance("MD5");
@@ -40,11 +41,12 @@ public class EncryptionUtil {
             }
             String fixHexString = hexString.toString();
             System.out.println("Encrypt : Hex String : " + fixHexString);
+            hashString = fixHexString;
         }
         catch(Exception e) {
             e.printStackTrace();
         }
-
+        return hashString;
     }
 
     public MessageEncrypt encryptMessage(String message, byte[] publicKeyByte, Context context) {
@@ -78,21 +80,7 @@ public class EncryptionUtil {
             System.out.println("Encrypt : Encoded Key : " + encodedKey);
 
             //MESSAGE HASH
-            System.out.println("Encrypt : Hashing message");
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            digest.update(messageByte);
-            byte[] messageDigest = digest.digest();
-
-            StringBuffer hexString = new StringBuffer();
-            int digestLength = messageDigest.length;
-            for(int i = 0; i < digestLength; i++) {
-                String h = Integer.toHexString(0xff & messageDigest[i]);
-                while(h.length() < 2) {
-                    h = "0" + h;
-                }
-                hexString.append(h);
-            }
-            String fixHexString = hexString.toString();
+            String fixHexString = createMDSHAHash(message);
             System.out.println("Encrypt : Hex String : " + fixHexString);
 
             messageEncrypt.encryptedMessage = encryptedMessage;
@@ -131,21 +119,7 @@ public class EncryptionUtil {
         //check if message manipulated
         if(originalMessage != "") {
             try {
-                byte[] originalMessageBytes = originalMessage.getBytes("UTF-8");
-                MessageDigest digest = MessageDigest.getInstance("MD5");
-                digest.update(originalMessageBytes);
-                byte[] messageDigest = digest.digest();
-
-                StringBuffer hexString = new StringBuffer();
-                int digestLength = messageDigest.length;
-                for(int i = 0; i < digestLength; i++) {
-                    String h = Integer.toHexString(0xff & messageDigest[i]);
-                    while(h.length() < 2) {
-                        h = "0" + h;
-                    }
-                    hexString.append(h);
-                }
-                String fixHexString = hexString.toString();
+                String fixHexString = createMDSHAHash(originalMessage);
                 System.out.println("Orinal Hash : " + messageHash);
                 System.out.println("Current Hash : " + fixHexString);
 
